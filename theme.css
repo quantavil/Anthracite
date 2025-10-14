@@ -22,7 +22,6 @@
   --interactive-accent-hover: rgb(14 210 247 / 0.8);
   --interactive-before: #5e6565;
   --blockquote-border: #4aa8fb;
-  --tag-background: rgb(14 210 247 / 0.15);
   --interactive-accent-rgb: #3dd7fb;
   --font-family-editor: 'Rubik';
   --font-family-preview: 'Rubik';
@@ -53,146 +52,103 @@
   --code-mono-font: 'OperatorMonoSSmLig-Book', ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-  /* Unified tag tokens */
+  /* Tag tokens */
   --tag-color: var(--text-accent);
-  --tag-bg: transparent;                 /* Prevent “solid block” look in Reading mode */
+  --tag-bg: transparent;                 /* keep clean chip, avoid solid blocks */
   --tag-hover-bg: rgb(14 210 247 / 0.12);
   --tag-border-color: rgb(14 210 247 / 0.35);
   --tag-hover-border-color: rgb(14 210 247);
 
-  /* Tag sizing vars */
+  /* Tag sizing */
   --tag-padding-x: 0.35em;
   --tag-padding-y: 0.05em;
   --tag-radius: 0.35em;
-
-  /* Emphasis variants */
-  --tag-bold-bg: rgb(14 210 247 / 0.15);
-  --tag-bold-border-color: var(--tag-hover-border-color);
-  --tag-italic-border-color: rgb(14 210 247 / 0.45);
 }
 
 /******************************************
-** TAGS — Unified, single-color (Editor + Preview)
-** - No per-tag color variations
-** - No “solid blocks” in Reading mode
-** - Distinct variants for normal / italic / bold
+** TAGS — unified chip (Editor + Reading)
+** - Same bubble for #tag, *#tag*, **#tag**
+** - Bold/italic only affect font, not bubble
+** - Prevent underline/gradient bleed
 ******************************************/
 
-/* Base tag — Preview + Editor */
+/* Base chip for tags in Reading + Editor */
 a.tag,
-.cm-s-obsidian span.cm-hashtag {
+.cm-s-obsidian .cm-hashtag {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
   padding: var(--tag-padding-y) var(--tag-padding-x);
   border: 1px solid var(--tag-border-color);
   border-radius: var(--tag-radius);
+  background: var(--tag-bg);
   color: var(--tag-color);
   font-family: var(--tag-font-family);
   font-size: 0.86rem;
   font-weight: 500;
   line-height: 1.3;
-  background: var(--tag-bg);
   text-decoration: none;
 
-  /* Neutralize global link underline/gradients and emphasis gradients */
+  /* kill global link underline/gradients and text fill overrides */
   background-image: none !important;
   background-clip: border-box !important;
-  -webkit-text-fill-color: currentColor !important;
   background-size: 0 0 !important;
+  -webkit-text-fill-color: currentColor !important;
 }
 
 /* Hover */
 a.tag:hover,
-.cm-s-obsidian span.cm-hashtag:hover {
+.cm-s-obsidian .cm-hashtag:hover {
   background: var(--tag-hover-bg);
   border-color: var(--tag-hover-border-color);
   color: var(--text-accent);
-  text-decoration: none;
 }
 
 /* Keep tag size consistent in headings */
-:where(h1, h2, h3, h4, h5, h6) a.tag { font-size: inherit; }
+:is(h1,h2,h3,h4,h5,h6) a.tag { font-size: inherit; }
 
-/* Dim literal '#' token for readability (Editor) */
-.cm-s-obsidian span.cm-formatting-hashtag {
-  color: var(--text-dim);
-  opacity: 0.7;
-}
-
-/* Remove any legacy per-tag color variants (CM6 only) */
-.cm-s-obsidian :where(span[class^='cm-tag-'], span[class*=' cm-tag-']) {
+/* Editor cosmetics */
+.cm-s-obsidian .cm-formatting-hashtag { color: var(--text-dim); opacity: 0.7; }
+/* Force single tag color in editor (no per-tag variants) */
+.cm-s-obsidian :is([class^='cm-tag-'], [class*=' cm-tag-']) {
   color: var(--tag-color) !important;
   font-weight: 500 !important;
 }
 
-/* Emphasis variants — robust across nesting + CM6 */
-
-/* 1) If emphasis wraps the tag (Reading mode) */
-em > a.tag {
+/* Emphasis wrappers: keep same chip, only change font style/weight */
+em > a.tag { font-style: italic; }
+strong > a.tag { font-weight: 700; }
+/* Nested emphasis (***#tag***) */
+em > strong > a.tag,
+strong > em > a.tag {
   font-style: italic;
-  border-style: dashed;
-  border-color: var(--tag-italic-border-color);
-}
-strong > a.tag {
   font-weight: 700;
-  border-color: var(--tag-bold-border-color);
-  background: var(--tag-bold-bg);
 }
 
-/* 2) If the tag wraps emphasis (edge cases) — flatten inner formatting */
-a.tag > em,
-a.tag > strong {
-  font: inherit;
-  background: none !important;
-  -webkit-text-fill-color: currentColor !important;
+/* If tag contains emphasis (rare), flatten it */
+a.tag > em, a.tag > strong {
+  all: unset;
 }
 
-/* 3) Prevent strong/em gradient text from bleeding onto chips */
-:where(strong, em):has(> a.tag) {
+/* Neutralize gradient text on emphasis wrappers that directly wrap a tag */
+:where(em,strong):has(> a.tag) {
   background: none !important;
   -webkit-text-fill-color: inherit !important;
 }
 
-/* 4) CM6 emphasis variants for hashtags inside emphasized spans */
-.cm-s-obsidian :where(.cm-em) .cm-hashtag {
-  font-style: italic;
-  border-style: dashed;
-  border-color: var(--tag-italic-border-color);
-}
-.cm-s-obsidian :where(.cm-strong) .cm-hashtag {
-  font-weight: 700;
-  border-color: var(--tag-bold-border-color);
-  background: var(--tag-bold-bg);
-}
-/* Neutralize gradient text on emphasis wrappers that contain tags (CM6) */
-.cm-s-obsidian :where(.cm-strong:has(.cm-hashtag), .cm-em:has(.cm-hashtag)) {
-  background: none !important;
-  -webkit-text-fill-color: inherit !important;
-}
+/* Editor emphasis for hashtags inside emphasized spans (font only) */
+.cm-s-obsidian .cm-em .cm-hashtag { font-style: italic; }
+.cm-s-obsidian .cm-strong .cm-hashtag { font-weight: 700; }
 
 /******************************************
 ** GENERAL STYLES
 ******************************************/
 
-::-webkit-scrollbar {
-  opacity: 1;
-  inline-size: 0.6rem;
-}
+::-webkit-scrollbar { opacity: 1; inline-size: 0.6rem; }
+::-webkit-scrollbar-thumb { background-color: var(--background-modifier-border); border-radius: 999px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-track-piece { background: var(--background-secondary); }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--background-modifier-border);
-  border-radius: 999px;
-}
-
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-track-piece {
-  background: var(--background-secondary);
-}
-
-.markdown-preview-view .internal-link.is-unresolved {
-  opacity: 0.7;
-}
+.markdown-preview-view .internal-link.is-unresolved { opacity: 0.7; }
 
 .titlebar { background-color: var(--background-primary-alt); }
 .titlebar-text { color: var(--text-accent); }
@@ -203,7 +159,6 @@ a.tag > strong {
   inset-block-end: 0;
   display: flex;
   align-items: center;
-  max-block-size: unset;
   margin: auto;
   padding: 8px 6px 6px 10px;
   background-color: var(--background-primary-alt);
@@ -215,55 +170,43 @@ a.tag > strong {
 }
 .status-bar:hover { opacity: 1; transition: opacity 0.2s; }
 
-.theme-dark .notice {
-  background-color: var(--background-primary-alt);
-  color: var(--text-accent);
-}
+.theme-dark .notice { background-color: var(--background-primary-alt); color: var(--text-accent); }
 
 /* NAVIGATION */
-.nav-file-title,
-.nav-folder-title {
-  border: 1px solid transparent;
-}
+.nav-file-title, .nav-folder-title { border: 1px solid transparent; }
 .nav-folder-collapse-indicator { color: var(--text-accent); }
+:is(.nav-file, .nav-folder).is-active > :is(.nav-file-title, .nav-folder-title, .nav-folder-collapse-indicator) { color: var(--text-accent); }
 
-:where(.nav-file, .nav-folder).is-active > :where(.nav-file-title, .nav-folder-title, .nav-folder-collapse-indicator) {
-  color: var(--text-accent);
-}
-
-.nav-file-title.is-active,
-.nav-folder-title.is-active {
+.nav-file-title.is-active, .nav-folder-title.is-active {
   background: var(--background-secondary);
   border: 1px solid var(--bg-accent-25);
   color: var(--text-accent);
 }
 
-body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover {
+body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover {
   background: var(--background-modifier-border);
   border: 1px solid var(--interactive-accent-hover);
   color: var(--text-accent);
 }
-body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-folder-collapse-indicator {
-  color: var(--text-accent);
-}
+body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover .nav-folder-collapse-indicator { color: var(--text-accent); }
 
-.nav-folder.mod-root > :where(.nav-file-title, .nav-folder-title) { color: var(--text-accent); }
+.nav-folder.mod-root > :is(.nav-file-title, .nav-folder-title) { color: var(--text-accent); }
 
 /* Side-dock */
-:where(.side-dock-ribbon-tab, .side-dock-ribbon-action, .workspace-ribbon-collapse-btn, .workspace-tab-header) {
+:is(.side-dock-ribbon-tab, .side-dock-ribbon-action, .workspace-ribbon-collapse-btn, .workspace-tab-header) {
   cursor: pointer;
   opacity: 0.5;
   transition: all 350ms ease-in-out;
 }
-:where(.side-dock-ribbon-tab, .side-dock-ribbon-action, .workspace-ribbon-collapse-btn, .workspace-tab-header):hover {
+:is(.side-dock-ribbon-tab, .side-dock-ribbon-action, .workspace-ribbon-collapse-btn, .workspace-tab-header):hover {
   color: var(--text-accent);
   opacity: 1;
 }
 .workspace-ribbon.is-collapsed { background-color: var(--background-primary-alt); }
-:where(.workspace-ribbon.mod-left, .workspace-ribbon.mod-right).is-collapsed { border-color: var(--editor-border-color); }
+:is(.workspace-ribbon.mod-left, .workspace-ribbon.mod-right).is-collapsed { border-color: var(--editor-border-color); }
 
 .is-focused .workspace-tab-header.is-active { opacity: 1; }
-.is-focused .mod-active .workspace-tab-header.is-active :where(.workspace-tab-header-inner-icon, .workspace-tab-header-inner-title) {
+.is-focused .mod-active .workspace-tab-header.is-active :is(.workspace-tab-header-inner-icon, .workspace-tab-header-inner-title) {
   background: var(--background-modifier-border);
   color: var(--text-accent);
 }
@@ -281,19 +224,13 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
 .workspace-drop-overlay { background-color: var(--background-primary-alt); }
 
 /* Keep formatting visible */
-:where(span.cm-formatting-list, span.cm-formatting-code-block.cm-hmd-codeblock, span.cm-formatting-header) {
-  display: inline !important;
-}
+:is(span.cm-formatting-list, span.cm-formatting-code-block.cm-hmd-codeblock, span.cm-formatting-header) { display: inline !important; }
 
 /******************************************
 ** EDITOR STYLES
 ******************************************/
 
-.markdown-source-view.mod-cm6 .task-list-label {
-  position: relative;
-  inset-block-start: -2px;
-  padding-block-start: 0;
-}
+.markdown-source-view.mod-cm6 .task-list-label { position: relative; inset-block-start: -2px; padding-block-start: 0; }
 
 /* CHECKBOXES */
 .contains-task-list .task-list-item {
@@ -303,10 +240,8 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
   vertical-align: middle;
 }
 .contains-task-list .task-list-item .contains-task-list { padding-inline-start: 5px; }
-.contains-task-list .task-list-item ul.contains-task-list::before {
-  inset-inline-start: -46px !important;
-  border-width: 2px;
-}
+.contains-task-list .task-list-item ul.contains-task-list::before { inset-inline-start: -46px !important; border-width: 2px; }
+
 .markdown-preview-view ul > li.task-list-item { text-indent: -3em; }
 
 .contains-task-list .task-list-item input[type='checkbox'] {
@@ -319,10 +254,8 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
   block-size: 20px;
   opacity: 0;
 }
-.markdown-preview-view .list-collapse-indicator {
-  box-sizing: border-box;
-  margin-inline-start: -80px !important;
-}
+
+.markdown-preview-view .list-collapse-indicator { box-sizing: border-box; margin-inline-start: -80px !important; }
 
 .contains-task-list .task-list-item::before {
   content: '';
@@ -381,11 +314,8 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
 ******************************************/
 
 /* HEADINGS */
-:where(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--default-font);
-  font-weight: 600;
-}
-:where(.HyperMD-header-2, .HyperMD-header-3, .HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) {
+:is(h1, h2, h3, h4, h5, h6) { font-family: var(--default-font); font-weight: 600; }
+:is(.HyperMD-header-2, .HyperMD-header-3, .HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6) {
   padding: 20px;
   border-block-end: 1px solid;
   border-width: 1px;
@@ -394,50 +324,44 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
 }
 
 /* Gradient Headings */
-.markdown-preview-section h1,
-.cm-header-1 {
+.markdown-preview-section h1, .cm-header-1 {
   font-size: 34px;
   background: linear-gradient(135deg, #0fb6d6, #bb9af7);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.markdown-preview-section h2,
-.cm-header-2 {
+.markdown-preview-section h2, .cm-header-2 {
   font-size: 26px;
   background: linear-gradient(135deg, #e04f90, #e2a360);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.markdown-preview-section h3,
-.cm-header-3 {
+.markdown-preview-section h3, .cm-header-3 {
   font-size: 22px;
   background: linear-gradient(135deg, #7aa2f7, #6bcafb);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.markdown-preview-section h4,
-.cm-header-4 {
+.markdown-preview-section h4, .cm-header-4 {
   font-size: 18px;
   background: linear-gradient(135deg, #bb9af7, #ff7a7a);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.markdown-preview-section h5,
-.cm-header-5 {
+.markdown-preview-section h5, .cm-header-5 {
   font-size: 18px;
   background: linear-gradient(135deg, #45e0a2, #45aaff);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.markdown-preview-section h6,
-.cm-header-6 {
+.markdown-preview-section h6, .cm-header-6 {
   font-size: 18px;
   background: linear-gradient(135deg, #ffc93c, #f4569d);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.markdown-preview-view :where(h2, h3, h4, h5, h6) {
+.markdown-preview-view :is(h2, h3, h4, h5, h6) {
   position: relative;
   margin-block: 45px 20px;
   padding-block-end: 10px;
@@ -447,81 +371,40 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
   border-image-source: linear-gradient(to right, var(--text-sub-accent), #100e17 35%);
 }
 
-.cm-formatting.cm-formatting-header.cm-header {
-  color: var(--text-accent);
-  opacity: 0.45;
-}
-
-/* HR */
-:where(.cm-line, .markdown-preview-view) hr {
-  margin-block: 4em;
-  block-size: 0;
-  border: none;
-  border-block-end: 1px solid;
-  border-image-slice: 1;
-  border-width: 1px;
-  border-image-source: linear-gradient(to right, transparent, var(--text-accent), transparent);
-}
-:where(.cm-line, .markdown-preview-view) hr::after {
-  content: '§';
-  position: absolute;
-  inset-inline-start: 50%;
-  display: inline-block;
-  padding: 0.5rem;
-  background-color: var(--background-primary);
-  color: var(--text-sub-accent);
-  transform: translate(-50%, -50%) rotate(60deg);
-  transform-origin: 50% 50%;
-}
+.cm-formatting.cm-formatting-header.cm-header { color: var(--text-accent); opacity: 0.45; }
 
 /* BOLD */
-:where(.cm-strong, strong) {
+:is(.cm-strong, strong) {
   background: linear-gradient(135deg, #ff9a56, #ff6b6b);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   padding: 0;
 }
+
 /* ITALIC */
-:where(.cm-em, em) {
+:is(.cm-em, em) {
   background: linear-gradient(135deg, #7de6eb, #3fe9cf);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: 'Fira Code', 'OperatorMonoSSmLig-Book', 'Rubik', var(--default-font) !important;
   font-weight: 500;
 }
+
 /* BOLD + ITALIC */
-:where(.cm-em.cm-strong, em strong, strong em) {
+:is(.cm-em.cm-strong, em strong, strong em) {
   background: linear-gradient(135deg, #ff6ec7, #ff93ac);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Prevent gradients on emphasis wrappers that contain tag chips */
-:where(strong, em):has(> a.tag) { background: none !important; -webkit-text-fill-color: inherit !important; }
-.cm-s-obsidian :where(.cm-strong:has(.cm-hashtag), .cm-em:has(.cm-hashtag)) { background: none !important; -webkit-text-fill-color: inherit !important; }
-
-/* LISTS */
-.cm-s-obsidian span.cm-formatting-list { color: var(--text-accent); }
-.markdown-source-view.mod-cm6 .cm-indent::before {
-  margin-inline-start: -1px;
-  border-width: 2px;
-  border-color: var(--text-accent);
-  opacity: 0.35;
-  transition: opacity 500ms ease-in-out;
-}
-.markdown-source-view.mod-cm6 .cm-active-indent::before { opacity: 0.8; }
-
 /******************************************
 ** LINKS
 ******************************************/
 
-.cm-s-obsidian span.cm-formatting-link {
-  color: var(--text-faint) !important;
-  opacity: 0.25;
-}
+.cm-s-obsidian span.cm-formatting-link { color: var(--text-faint) !important; opacity: 0.25; }
 
 /* Exclude tag anchors from the global underline effect */
-:where(.internal-link, .external-link, a:not(.tag)) {
+:is(.internal-link, .external-link, a:not(.tag)) {
   position: relative;
   z-index: 1;
   padding: 0;
@@ -542,22 +425,18 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
   background-image: linear-gradient(to bottom, var(--bg-accent-55) 0%, var(--bg-accent-55) 100%);
 }
 
-:where(.internal-link, .cm-s-obsidian span.cm-hmd-internal-link .cm-underline):hover {
+:is(.internal-link, .cm-s-obsidian span.cm-hmd-internal-link .cm-underline):hover {
   background-size: 4px 50px;
   color: #fff;
   -webkit-text-fill-color: #fff;
 }
-:where(.cm-s-obsidian span.cm-link:not(.cm-formatting-link) .cm-underline, .external-link):hover {
+:is(.cm-s-obsidian span.cm-link:not(.cm-formatting-link) .cm-underline, .external-link):hover {
   background-size: 4px 50px;
   color: #fff;
   -webkit-text-fill-color: #fff;
 }
 
-.cm-url {
-  color: var(--text-faint) !important;
-  font-weight: normal;
-  opacity: 0.4;
-}
+.cm-url { color: var(--text-faint) !important; font-weight: normal; opacity: 0.4; }
 .cm-formatting-image { color: var(--text-accent) !important; opacity: 0.7; }
 
 /******************************************
@@ -565,11 +444,8 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
 ******************************************/
 
 .cm-s-obsidian span.cm-inline-code { color: rgb(14 210 247 / 0.9) !important; }
-.cm-s-obsidian span.cm-inline-code.cm-formatting-code {
-  display: inline-flex;
-  min-inline-size: 0.55rem;
-}
-:where(.cm-s-obsidian span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code):not(.obsidian-search-match-highlight), .markdown-preview-view code) {
+.cm-s-obsidian span.cm-inline-code.cm-formatting-code { display: inline-flex; min-inline-size: 0.55rem; }
+:is(.cm-s-obsidian span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code):not(.obsidian-search-match-highlight), .markdown-preview-view code) {
   padding: 0 5px;
   background-color: rgb(14 210 247 / 0.05);
   border-radius: 0.3rem;
@@ -582,7 +458,7 @@ body:not(.is-grabbing) :where(.nav-file-title, .nav-folder-title):hover .nav-fol
 ** HIGHLIGHTING
 ******************************************/
 
-:where(.cm-s-obsidian span.cm-formatting-highlight, .cm-s-obsidian span.cm-highlight) {
+:is(.cm-s-obsidian span.cm-formatting-highlight, .cm-s-obsidian span.cm-highlight) {
   background-color: var(--text-highlight-bg) !important;
   background-image: none !important;
   color: #fff;
@@ -668,7 +544,7 @@ pre[class$='python']::before { content: 'Python'; }
 
 blockquote { margin-inline-start: 0; }
 
-:where(.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote, .markdown-preview-view blockquote) {
+:is(.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote, .markdown-preview-view blockquote) {
   position: relative;
   margin-block-end: 2em;
   margin-inline-end: 0 !important;
@@ -680,7 +556,7 @@ blockquote { margin-inline-start: 0; }
   border-end-end-radius: 5px;
   color: #bdbdbd;
 }
-:where(.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote, .markdown-preview-view blockquote)::before {
+:is(.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote, .markdown-preview-view blockquote)::before {
   content: '';
   position: absolute;
   inset-block-start: 0;
@@ -691,7 +567,7 @@ blockquote { margin-inline-start: 0; }
 }
 .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote + .HyperMD-quote::before { display: none; }
 
-:where(.HyperMD-quote, .markdown-preview-view blockquote)::after {
+:is(.HyperMD-quote, .markdown-preview-view blockquote)::after {
   content: '';
   position: absolute;
   inset-block-end: 0;
@@ -700,7 +576,7 @@ blockquote { margin-inline-start: 0; }
   block-size: 2px;
   background: linear-gradient(90deg, rgb(13 185 215 / 0.5), #15131c);
 }
-:where(.HyperMD-quote-2, .HyperMD-quote-3, .HyperMD-quote-4, .HyperMD-quote-5)::before { block-size: 0; }
+:is(.HyperMD-quote-2, .HyperMD-quote-3, .HyperMD-quote-4, .HyperMD-quote-5)::before { block-size: 0; }
 
 .markdown-preview-view blockquote p { position: relative; }
 .markdown-preview-view blockquote p:first-of-type::before {
@@ -718,7 +594,7 @@ blockquote { margin-inline-start: 0; }
 ** FRONT MATTER
 ******************************************/
 
-.cm-s-obsidian :where(span.cm-def, span.cm-atom) { color: var(--text-faint); }
+.cm-s-obsidian :is(span.cm-def, span.cm-atom) { color: var(--text-faint); }
 .cm-s-obsidian span.cm-meta { color: var(--text-accent); }
 .cm-s-obsidian span.cm-string { color: var(--text-sub-accent); }
 
@@ -727,9 +603,7 @@ blockquote { margin-inline-start: 0; }
 ******************************************/
 
 .markdown-preview-view img { border-radius: 8px; }
-.theme-dark :where(:not(pre) > code[class*='language-'], pre[class*='language-']) {
-  background-color: var(--background-secondary);
-}
+.theme-dark :is(:not(pre) > code[class*='language-'], pre[class*='language-']) { background-color: var(--background-secondary); }
 
 /******************************************
 ** CODE SYNTAX HIGHLIGHTING
@@ -737,7 +611,7 @@ blockquote { margin-inline-start: 0; }
 
 /* CodeMirror Syntax */
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-comment { color: #6272a4; }
-.theme-dark .cm-s-obsidian pre.HyperMD-codeblock :where(span.cm-string, span.cm-string-2) { color: #f1fa8c; }
+.theme-dark .cm-s-obsidian pre.HyperMD-codeblock :is(span.cm-string, span.cm-string-2) { color: #f1fa8c; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-number { color: #bd93f9; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-variable { color: #50fa7b; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-variable-2 { color: white; }
@@ -750,11 +624,11 @@ blockquote { margin-inline-start: 0; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-attribute { color: #50fa7b; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-qualifier { color: #50fa7b; }
 .theme-dark .cm-s-obsidian pre.HyperMD-codeblock span.cm-property { color: #66d9ef; }
-.theme-dark .cm-s-obsidian pre.HyperMD-codeblock :where(span.cm-variable-3, span.cm-type) { color: #ffb86c; }
+.theme-dark .cm-s-obsidian pre.HyperMD-codeblock :is(span.cm-variable-3, span.cm-type) { color: #ffb86c; }
 
 /* Prism.js Dracula Theme */
 pre::-webkit-scrollbar { inline-size: 14px; }
-:where(code[class*='language-'], pre[class*='language-']) {
+:is(code[class*='language-'], pre[class*='language-']) {
   font-family: var(--code-mono-font) !important;
   line-height: 1.5;
   text-align: start;
@@ -768,13 +642,13 @@ pre::-webkit-scrollbar { inline-size: 14px; }
   color: #ccc;
   text-shadow: none;
 }
-:where(pre[class*='language-'], code[class*='language-'])::selection,
-:where(pre[class*='language-'], code[class*='language-']) ::selection {
+:is(pre[class*='language-'], code[class*='language-'])::selection,
+:is(pre[class*='language-'], code[class*='language-']) ::selection {
   background-color: #5a5f80;
   text-shadow: none;
 }
 @media print {
-  :where(code[class*='language-'], pre[class*='language-']) { text-shadow: none; }
+  :is(code[class*='language-'], pre[class*='language-']) { text-shadow: none; }
 }
 
 :not(pre) > code[class*='language-'],
@@ -826,7 +700,7 @@ pre[class*='language-'] { background: rgb(40 41 54); }
 .theme-dark .token { color: #ff79c6; }
 
 /* Language-specific (fixed selector order) */
-.theme-dark :where(.language-cpp, .language-c) .token.string { color: #8be9fd; }
+.theme-dark :is(.language-cpp, .language-c) .token.string { color: #8be9fd; }
 .theme-dark .language-css .token.selector { color: rgb(80 250 123); }
 .theme-dark .language-css .token.property { color: rgb(255 184 108); }
 .theme-dark .language-java .token.class-name { color: #8be9fd; }
