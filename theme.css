@@ -511,6 +511,83 @@ blockquote { margin-inline-start: 0; }
 }
 
 /******************************************
+** HORIZONTAL RULES — decorative + elegant
+******************************************/
+:is(.markdown-source-view, .markdown-preview-view) hr {
+  position: relative;
+  height: 2px;
+  border: 0;
+  margin: 2rem 0;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgb(14 210 247 / 0.15) 12%,
+      rgb(14 210 247 / 0.55) 35%,
+      rgb(244 86 157 / 0.55) 65%,
+      rgb(14 210 247 / 0.15) 88%,
+      transparent 100%);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgb(14 210 247 / 0.05),
+    0 0 18px rgb(14 210 247 / 0.18),
+    inset 0 0 0 1px rgb(14 210 247 / 0.06);
+  overflow: visible;
+}
+
+/* Subtle hairline above for a refined look */
+:is(.markdown-source-view, .markdown-preview-view) hr::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: -6px;
+  height: 1px;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgb(14 210 247 / 0.08) 20%,
+      rgb(14 210 247 / 0.22) 50%,
+      rgb(14 210 247 / 0.08) 80%,
+      transparent 100%);
+  border-radius: 999px;
+}
+
+/* Center ornament (change '✦' to '❖' or '◆' if you prefer) */
+:is(.markdown-source-view, .markdown-preview-view) hr::after {
+  content: '✦';
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -60%);
+  padding: 0 0.35rem;
+  color: var(--text-accent);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--background-primary);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 6px var(--background-primary), /* masks the line behind the symbol */
+    0 0 10px rgb(14 210 247 / 0.35),
+    0 0 18px rgb(244 86 157 / 0.25);
+}
+
+/* Labeled variant: <hr data-title="Your Title"> */
+:is(.markdown-source-view, .markdown-preview-view) hr[data-title]::after {
+  content: attr(data-title);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-title-h2);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  box-shadow:
+    0 0 0 6px var(--background-primary),
+    0 6px 16px rgb(0 0 0 / 0.25);
+}
+
+/******************************************
 ** FRONT MATTER
 ******************************************/
 
@@ -660,3 +737,4 @@ pre.line-numbers > code { position: relative; white-space: inherit; }
   color: #999;
   text-align: end;
 }
+
