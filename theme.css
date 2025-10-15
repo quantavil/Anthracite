@@ -46,116 +46,9 @@
   --default-font-size: 18px;
   --body-font-weight: 450;
 
-  /* Tags + Code fonts */
-  --tag-font-family: 'OperatorMonoSSmLig-Book', 'Rubik', ui-sans-serif, system-ui,
-    -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Code fonts */
   --code-mono-font: 'OperatorMonoSSmLig-Book', ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-  /* Tag tokens */
-  --tag-color: var(--text-accent);
-  --tag-bg: transparent; /* base chip keeps clean, not solid */
-  --tag-border-color: rgb(14 210 247 / 0.35);
-  --tag-hover-bg: rgb(14 210 247 / 0.12);
-  --tag-hover-border-color: rgb(14 210 247);
-
-  /* Bold/Italic variants (distinct color + fill so wrappers don't bleed) */
-  --tag-italic-color: var(--text-sub-accent);
-  --tag-italic-bg: rgb(244 86 157 / 0.16);
-  --tag-italic-border-color: rgb(244 86 157 / 0.55);
-
-  --tag-bold-color: var(--text-accent);
-  --tag-bold-bg: rgb(14 210 247 / 0.18);
-  --tag-bold-border-color: rgb(14 210 247);
-
-  /* Tag sizing */
-  --tag-padding-x: 0.35em;
-  --tag-padding-y: 0.05em;
-  --tag-radius: 0.35em;
-}
-
-/******************************************
-** TAGS — unified chip (Editor + Reading)
-** - #tag uses base border chip (transparent bg)
-** - *#tag* and **#tag** get filled chips with distinct colors
-** - Shield tags from link underlines and emphasis gradients
-******************************************/
-
-/* Base chip for tags in Reading + Editor */
-a.tag,
-.cm-s-obsidian .cm-hashtag {
-  position: relative;
-  z-index: 0;
-  contain: paint;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  padding: var(--tag-padding-y) var(--tag-padding-x);
-  border: 1px solid var(--tag-border-color);
-  border-radius: var(--tag-radius);
-  background: var(--tag-bg);
-  color: var(--tag-color);
-  font-family: var(--tag-font-family);
-  font-size: 0.86rem;
-  font-weight: 500;
-  line-height: 1.3;
-  text-decoration: none;
-
-  /* kill global link underline/gradients + text-fill bleed */
-  background-image: none !important;
-  background-clip: border-box !important;
-  background-size: 0 0 !important;
-  -webkit-text-fill-color: currentColor !important;
-}
-
-/* Hover */
-a.tag:hover,
-.cm-s-obsidian .cm-hashtag:hover {
-  background: var(--tag-hover-bg);
-  border-color: var(--tag-hover-border-color);
-  color: var(--text-accent);
-}
-
-/* Size inside headings */
-:is(h1,h2,h3,h4,h5,h6) a.tag { font-size: inherit; }
-
-/* Editor cosmetics */
-.cm-s-obsidian .cm-formatting-hashtag { color: var(--text-dim); opacity: 0.7; }
-/* Force single tag color in editor (no per-tag variants) */
-.cm-s-obsidian :is([class^='cm-tag-'], [class*=' cm-tag-']) {
-  color: var(--tag-color) !important;
-  font-weight: 500 !important;
-}
-
-/* Italic tag chip — distinct color + filled bubble */
-em > a.tag,
-.cm-s-obsidian .cm-em .cm-hashtag {
-  font-style: italic;
-  color: var(--tag-italic-color) !important;
-  border-color: var(--tag-italic-border-color) !important;
-  background: var(--tag-italic-bg) !important;
-}
-
-/* Bold tag chip — distinct color + filled bubble */
-strong > a.tag,
-.cm-s-obsidian .cm-strong .cm-hashtag {
-  font-weight: 700;
-  color: var(--tag-bold-color) !important;
-  border-color: var(--tag-bold-border-color) !important;
-  background: var(--tag-bold-bg) !important;
-}
-
-/* Triple emphasis (***#tag***) */
-em > strong > a.tag,
-strong > em > a.tag {
-  font-style: italic;
-  font-weight: 700;
-}
-
-/* If tag contains emphasis (rare), flatten it inside the chip so bubble wraps text cleanly */
-a.tag > em,
-a.tag > strong {
-  all: unset;
 }
 
 /******************************************
@@ -416,12 +309,21 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover .nav-folder
 }
 
 /******************************************
+** TAGS (Royal Velvet Style)
+******************************************/
+
+a.tag,
+.cm-s-obsidian span.cm-hashtag {
+  color: var(--text-sub-accent);
+}
+
+/******************************************
 ** LINKS
 ******************************************/
 
 .cm-s-obsidian span.cm-formatting-link { color: var(--text-faint) !important; opacity: 0.25; }
 
-/* Exclude tag anchors from the global underline effect */
+/* Internal and external links */
 :is(.internal-link, .external-link, a:not(.tag)) {
   position: relative;
   z-index: 1;
