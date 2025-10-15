@@ -52,6 +52,15 @@
 }
 
 /******************************************
+** TAGS — Royal Velvet logic (simple color)
+******************************************/
+
+a.tag,
+.cm-s-obsidian span.cm-hashtag {
+  color: var(--text-accent);
+}
+
+/******************************************
 ** GENERAL STYLES
 ******************************************/
 
@@ -309,21 +318,12 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover .nav-folder
 }
 
 /******************************************
-** TAGS (Royal Velvet Style)
-******************************************/
-
-a.tag,
-.cm-s-obsidian span.cm-hashtag {
-  color: var(--text-sub-accent);
-}
-
-/******************************************
 ** LINKS
 ******************************************/
 
 .cm-s-obsidian span.cm-formatting-link { color: var(--text-faint) !important; opacity: 0.25; }
 
-/* Internal and external links */
+/* Exclude tag anchors from the global underline effect */
 :is(.internal-link, .external-link, a:not(.tag)) {
   position: relative;
   z-index: 1;
