@@ -573,36 +573,42 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
 
 .markdown-preview-section h1,
 .cm-header-1:not(.cm-formatting) {
+  --heading-color: var(--text-title-h1);
   font-size: var(--h1-size);
   background-image: var(--h1-gradient);
 }
 
 .markdown-preview-section h2,
 .cm-header-2:not(.cm-formatting) {
+  --heading-color: var(--text-title-h2);
   font-size: var(--h2-size);
   background-image: var(--h2-gradient);
 }
 
 .markdown-preview-section h3,
 .cm-header-3:not(.cm-formatting) {
+  --heading-color: var(--text-title-h3);
   font-size: var(--h3-size);
   background-image: var(--h3-gradient);
 }
 
 .markdown-preview-section h4,
 .cm-header-4:not(.cm-formatting) {
+  --heading-color: var(--text-title-h4);
   font-size: var(--h4-size);
   background-image: var(--h4-gradient);
 }
 
 .markdown-preview-section h5,
 .cm-header-5:not(.cm-formatting) {
+  --heading-color: var(--text-title-h5);
   font-size: var(--h5-size);
   background-image: var(--h5-gradient);
 }
 
 .markdown-preview-section h6,
 .cm-header-6:not(.cm-formatting) {
+  --heading-color: var(--text-title-h6);
   font-size: var(--h6-size);
   background-image: var(--h6-gradient);
 }
@@ -650,21 +656,60 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
 /* ═══════════════════════════════════════════
    TYPOGRAPHY — Gradient resets
    Prevent broken text in nested contexts
+
+   Live Preview note: .cm-strong.cm-header-1
+   already gets the heading gradient from
+   .cm-header-1:not(.cm-formatting) at (0,2,0)
+   which beats :is(.cm-strong,strong) at (0,1,0).
+   No override rule needed for Live Preview
+   bold/italic — the natural specificity works.
    ═══════════════════════════════════════════ */
 
-/* Inside headings → inherit the heading gradient */
-:is(h1, h2, h3, h4, h5, h6) :is(strong, em),
-:is(.cm-strong, .cm-em).cm-header {
-  background: inherit;
-  background-clip: inherit;
-  -webkit-background-clip: inherit;
-  -webkit-text-fill-color: inherit;
+/* ── Reading Mode: bold/italic inside headings → inherit heading gradient ──
+   Specificity: (0,1,2) beats :is(.cm-strong,strong) at (0,1,0) */
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) :is(strong, em, em strong, strong em) {
+  background-image: inherit;
+}
+
+/* ── Reading Mode: links, tags, code, marks inside headings → use own color ──
+   These elements should NOT show the heading gradient; reset text-fill so
+   their color property becomes visible instead of inheriting transparent. */
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) :is(a, .internal-link, .external-link, .tag, code) {
+  -webkit-text-fill-color: currentColor;
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+}
+
+/* ── Live Preview: non-gradient elements with heading classes → use own color ──
+   CM6 puts all classes on the SAME span (compound), not as descendants.
+   E.g. a tag in H1 is: span.cm-hashtag.cm-header.cm-header-1 */
+.markdown-source-view.mod-cm6
+  :is(.cm-hmd-internal-link, .cm-link, .cm-hashtag, .cm-inline-code).cm-header {
+  -webkit-text-fill-color: currentColor;
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+}
+
+/* ── Spell errors inside headings → preserve heading gradient ──
+   Obsidian's spellcheck can reset -webkit-text-fill-color, breaking the
+   gradient. Re-assert transparent fill so background-clip:text still works. */
+.cm-spell-error:is(
+    .cm-header-1,
+    .cm-header-2,
+    .cm-header-3,
+    .cm-header-4,
+    .cm-header-5,
+    .cm-header-6
+  ):not(.cm-formatting) {
+  -webkit-text-fill-color: transparent;
 }
 
 /* Inside links → use link color */
 :is(a, .internal-link, .external-link) :is(strong, em),
 :is(.cm-strong, .cm-em):is(.cm-link, .cm-hmd-internal-link) {
-  background: none;
+  background-image: none;
   background-clip: border-box;
   -webkit-background-clip: border-box;
   -webkit-text-fill-color: currentColor;
@@ -1096,6 +1141,32 @@ a.tag,
   color: var(--text-normal);
   -webkit-background-clip: border-box;
   -webkit-text-fill-color: var(--text-normal);
+}
+
+/* Highlights inside headings — Reading Mode
+   Show heading's flat accent color with highlight background.
+   --heading-color is set per-level in the heading gradient rules. */
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) mark {
+  -webkit-text-fill-color: var(--heading-color);
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  background-color: var(--text-highlight-bg);
+}
+
+/* Highlights inside headings — Live Preview
+   Compound selector: .cm-highlight.cm-header-N on the same span.
+   Specificity (0,3,1) beats the base highlight rule at (0,2,1). */
+.markdown-source-view.mod-cm6
+  span.cm-highlight:is(
+    .cm-header-1,
+    .cm-header-2,
+    .cm-header-3,
+    .cm-header-4,
+    .cm-header-5,
+    .cm-header-6
+  ) {
+  -webkit-text-fill-color: var(--heading-color);
 }
 
 /* ═══════════════════════════════════════════
