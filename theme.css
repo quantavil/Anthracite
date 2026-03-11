@@ -1,0 +1,1715 @@
+/**
+ * Theme: Iridium Velvet
+ * Version: 2.1.0
+ *
+ * Dark  — Deep space surfaces · Cyan / rose accents · Dracula syntax
+ * Light — Warm linen surfaces · Teal / warm-rose accents · Earthy syntax
+ *
+ * Fonts: Rubik (text) · Operator Mono SSm Lig (code)
+ *        ⚠ Operator Mono is a $200 commercial font.
+ *          Falls back to system monospace when unavailable.
+ *
+ * Changelog v2.1.0
+ * ────────────────
+ *  • Style Settings integration (blockquote toggles, marker toggle)
+ *  • Link hover redesigned — thicker underline + color shift (no fill)
+ *  • Selection now visible on gradient text (headings / bold / italic)
+ *  • Light-theme surfaces warmed (#faf6f0 → #f3ece1 linen)
+ *  • Blockquote L3 colors scoped per-theme (was hardcoded Dracula purple)
+ *  • WCAG fixes: --text-faint, --text-title-h6, inline-code bg, --text-muted
+ *  • Dark syntax: softened yellow strings to reduce halation
+ *  • Shared computed vars moved to body (DRY, –14 duplicate lines)
+ *  • Duplicate font-family chains eliminated
+ *  • Added: table styling, callout styling, Firefox scrollbar, color-scheme
+ *  • Fixed: empty language badge, .notice severity, task-text visibility
+ *  • Fixed: .cm-meta in code was invisible (set to --background-primary)
+ *  • Removed: deprecated word-wrap, fragile text-indent, .token catch-all
+ *  • Removed: unreliable .cm-quote-N span selectors (CM6)
+ */
+
+/* ═══════════════════════════════════════════
+   STYLE SETTINGS — Plugin integration
+   ═══════════════════════════════════════════ */
+
+/* @settings
+name: Iridium Velvet
+id: iridium-velvet
+settings:
+  -
+    id: italic-blockquote
+    title: Italic Blockquotes
+    description: Render blockquote text in italic
+    type: class-toggle
+    default: false
+  -
+    id: transparent-blockquote
+    title: Transparent Blockquote Background
+    description: Remove the gradient / flat background from blockquotes
+    type: class-toggle
+    default: false
+  -
+    id: hide-formatting-markers
+    title: Hide Formatting Markers (Live Preview)
+    description: "Hides ##, *, ``` markers — reverts to Obsidian default"
+    type: class-toggle
+    default: false
+*/
+
+/* ═══════════════════════════════════════════
+   DARK THEME
+   ═══════════════════════════════════════════ */
+
+.theme-dark {
+  color-scheme: dark; /* NEW: native form elements adapt */
+
+  /* ── Surfaces ── */
+  --background-primary: #100e17;
+  --background-primary-alt: #0d0b12;
+  --background-secondary: #191621;
+  --background-secondary-alt: #0d0b12;
+
+  /* ── Text hierarchy ── */
+  --text-normal: #d4d4d4;
+  --text-muted: #8890a4;
+  --text-faint: #7b83a0; /* FIX: was #5a6080 — WCAG contrast ≈ 4.1 : 1 */
+  --text-accent: #0fb6d6;
+  --text-sub-accent: #f4569d;
+
+  /* ── Links ── */
+  --text-link: #5ec4e0;
+  --text-a: #6bcafb;
+  --text-a-hover: #bbecff;
+
+  /* ── Selection & highlighting ── */
+  --text-mark: #263d92;
+  --text-highlight-bg: rgb(var(--interactive-sub-accent-rgb) / 0.28);
+
+  /* ── Heading accents — match each gradient's start color ── */
+  --text-title-h1: var(--text-accent);
+  --text-title-h2: #e04f90;
+  --text-title-h3: #e8a060;
+  --text-title-h4: #bb9af7;
+  --text-title-h5: #45e0a2;
+  --text-title-h6: #ffc93c;
+
+  /* ── Interactive ── */
+  --interactive-accent-rgb: 14 210 247;
+  --interactive-sub-accent-rgb: 244 86 157;
+  --interactive-accent: rgb(var(--interactive-accent-rgb) / 0.5);
+  --interactive-accent-hover: rgb(var(--interactive-accent-rgb) / 0.8);
+  --interactive-before: #5e6565;
+
+  /* ── Borders ── */
+  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.05);
+  --table-border-color: rgb(var(--interactive-accent-rgb) / 0.15);
+  --editor-border-color: #101014;
+
+  /* ── Blockquote ── */
+  --blockquote-border: #4aa8fb;
+  --blockquote-bg-gradient-start: rgb(120 120 120 / 0.15);
+  --blockquote-bg-gradient-end: var(--background-primary);
+  --blockquote-l3-border: #bb9af7; /* NEW: was hardcoded globally */
+  --blockquote-l3-bg: rgb(187 154 247 / 0.06);
+
+  /* ── Heading gradients ── */
+  --h1-gradient: linear-gradient(135deg, #0fb6d6, #bb9af7);
+  --h2-gradient: linear-gradient(135deg, #e04f90, #e2a360);
+  --h3-gradient: linear-gradient(135deg, #e8a060, #d47090);
+  --h4-gradient: linear-gradient(135deg, #bb9af7, #ff7a7a);
+  --h5-gradient: linear-gradient(135deg, #45e0a2, #45aaff);
+  --h6-gradient: linear-gradient(135deg, #ffc93c, #f4569d);
+
+  /* ── Text style gradients ── */
+  --bold-gradient: linear-gradient(135deg, #ff9a56, #ff6b6b);
+  --italic-gradient: linear-gradient(135deg, #7de6eb, #3fe9cf);
+  --bold-italic-gradient: linear-gradient(135deg, #ff6ec7, #ff93ac);
+
+  /* ── Checkbox ── */
+  --checkbox-check-color: #212121;
+  --checked-text-color: rgb(var(--interactive-accent-rgb) / 0.7); /* NEW */
+
+  /* ── Syntax — Dracula-inspired ── */
+  --sh-selection: #5a5f80;
+  --sh-comment: rgb(98 114 164);
+  --sh-string: #e6db74; /* FIX: was rgb(241 250 140) — softer gold, less halation */
+  --sh-number: rgb(189 147 249);
+  --sh-variable: rgb(80 250 123);
+  --sh-operator: rgb(139 233 253);
+  --sh-keyword: rgb(255 121 198);
+  --sh-tag: rgb(255 121 198);
+  --sh-property: #66d9ef;
+  --sh-type: #ffb86c;
+  --sh-attr-value: #7ec699;
+  --sh-deleted: #e2777a;
+  --sh-meta: #6272a4;
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT THEME — Warm Linen
+   ═══════════════════════════════════════════ */
+
+.theme-light {
+  color-scheme: light; /* NEW */
+
+  /* ── Surfaces — FIX: warmer, less stark white ── */
+  --background-primary: #f3ece1;
+  --background-primary-alt: #ece4d8;
+  --background-secondary: #e5ddd1;
+  --background-secondary-alt: #dcd4c8;
+
+  /* ── Text hierarchy ── */
+  --text-normal: #3d3229;
+  --text-muted: #6f6357; /* FIX: was #7a6e62 — better contrast on new bg */
+  --text-faint: #8a7c6e; /* FIX: was #998b7d */
+  --text-accent: #087080;
+  --text-sub-accent: #c44878;
+
+  /* ── Links ── */
+  --text-link: #187888;
+  --text-a: #1a7a9a;
+  --text-a-hover: #064050;
+
+  /* ── Selection & highlighting ── */
+  --text-mark: #dcc890; /* FIX: was #e8d8a8 — more visible on new bg */
+  --text-highlight-bg: rgb(var(--interactive-sub-accent-rgb) / 0.20);
+
+  /* ── Heading accents ── */
+  --text-title-h1: var(--text-accent);
+  --text-title-h2: #a83868;
+  --text-title-h3: #986028;
+  --text-title-h4: #6040a0;
+  --text-title-h5: #187848;
+  --text-title-h6: #7d6010; /* FIX: was #907010 — better contrast at 1em */
+
+  /* ── Interactive ── */
+  --interactive-accent-rgb: 8 112 128;
+  --interactive-sub-accent-rgb: 196 72 120;
+  --interactive-accent: rgb(var(--interactive-accent-rgb) / 0.5);
+  --interactive-accent-hover: rgb(var(--interactive-accent-rgb) / 0.8);
+  --interactive-before: #b8b0a4;
+
+  /* ── Borders ── */
+  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.08);
+  --table-border-color: rgb(var(--interactive-accent-rgb) / 0.15);
+  --editor-border-color: #d5cdc1; /* FIX: matches new surfaces */
+
+  /* ── Blockquote ── */
+  --blockquote-border: #2a8aaa;
+  --blockquote-bg-gradient-start: rgb(160 140 110 / 0.12);
+  --blockquote-bg-gradient-end: var(--background-primary);
+  --blockquote-l3-border: #6040a0; /* NEW: theme-appropriate purple */
+  --blockquote-l3-bg: rgb(96 64 160 / 0.06);
+
+  /* ── Heading gradients — WCAG AA+ on linen ── */
+  --h1-gradient: linear-gradient(135deg, #087080, #6040a0);
+  --h2-gradient: linear-gradient(135deg, #a83868, #985520);
+  --h3-gradient: linear-gradient(135deg, #986028, #904858);
+  --h4-gradient: linear-gradient(135deg, #6040a0, #b83030);
+  --h5-gradient: linear-gradient(135deg, #187848, #2860a0);
+  --h6-gradient: linear-gradient(135deg, #7d6010, #a83868); /* FIX: matches h6 accent */
+
+  /* ── Text style gradients ── */
+  --bold-gradient: linear-gradient(135deg, #b85a18, #c03030);
+  --italic-gradient: linear-gradient(135deg, #0a7878, #107858);
+  --bold-italic-gradient: linear-gradient(135deg, #a83868, #c04858);
+
+  /* ── Checkbox ── */
+  --checkbox-check-color: #ffffff;
+  --checked-text-color: rgb(var(--interactive-accent-rgb) / 0.7); /* NEW */
+
+  /* ── Syntax — warm & readable ── */
+  --sh-selection: #d0c8ba; /* FIX: matches new bg */
+  --sh-comment: #7a6e60; /* FIX: was #8a7e70 — improved contrast */
+  --sh-string: #087080;
+  --sh-number: #a83868;
+  --sh-variable: #385ca0;
+  --sh-operator: #5a4e42;
+  --sh-keyword: #c44878;
+  --sh-tag: #c44878;
+  --sh-property: #087080;
+  --sh-type: #6040a0;
+  --sh-attr-value: #187848;
+  --sh-deleted: #c03030;
+  --sh-meta: #7a6e60; /* FIX: was #8a7e70 */
+}
+
+/* ═══════════════════════════════════════════
+   ROOT — Theme-agnostic tokens
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* Fonts */
+  --default-font: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  --code-mono-font: 'OperatorMonoSSmLig-Book', ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Radii */
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --radius-xl: 16px;
+  --radius-round: 999px;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-s: 0.5rem;
+  --space-m: 1rem;
+  --space-l: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Heading sizes */
+  --h1-size: 2em;
+  --h2-size: 1.6em;
+  --h3-size: 1.4em;
+  --h4-size: 1.2em;
+  --h5-size: 1.1em;
+  --h6-size: 1em;
+}
+
+/* ═══════════════════════════════════════════
+   BODY — Shared computed vars + font defaults
+   DRY: Identical formulas across themes live
+   here; base RGB values already differ via
+   .theme-dark / .theme-light
+   ═══════════════════════════════════════════ */
+
+body {
+  --font-text: var(--default-font);
+  --font-monospace: var(--code-mono-font);
+  --blockquote-font-style: normal;
+
+  --bg-sub-accent-55: rgb(var(--interactive-sub-accent-rgb) / 0.55);
+  --bg-sub-accent-25: rgb(var(--interactive-sub-accent-rgb) / 0.25);
+  --bg-accent-55: rgb(var(--interactive-accent-rgb) / 0.55);
+  --bg-accent-25: rgb(var(--interactive-accent-rgb) / 0.25);
+  --code-background: var(--background-secondary);
+  --checkbox-border-color: var(--interactive-before);
+
+  /* Obsidian picks these up for Settings → Appearance */
+  --font-family-editor: var(--default-font);
+  --font-family-preview: var(--default-font);
+}
+
+/* Style Settings toggle */
+.italic-blockquote {
+  --blockquote-font-style: italic;
+}
+
+/* ═══════════════════════════════════════════
+   BASE — Selection, Scrollbar, Fonts
+   ═══════════════════════════════════════════ */
+
+/* FIX: -webkit-text-fill-color ensures gradient text
+   (headings / bold / italic) stays readable when selected */
+::selection {
+  background-color: var(--text-mark);
+  color: var(--text-normal);
+  -webkit-text-fill-color: var(--text-normal);
+}
+
+/* DRY: Single rule for both views (no 'Rubik','Rubik' stutter) */
+.markdown-source-view,
+.markdown-preview-view {
+  font-family: var(--default-font);
+}
+
+/* Scrollbar — WebKit */
+::-webkit-scrollbar {
+  inline-size: 0.6rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--background-modifier-border);
+  border-radius: var(--radius-round);
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
+  background: var(--background-secondary);
+}
+
+/* NEW: Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--background-modifier-border) var(--background-secondary);
+}
+
+/* Unresolved links */
+.markdown-preview-view .internal-link.is-unresolved {
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT — Nav, Sidebar, Ribbons, Status Bar
+   ═══════════════════════════════════════════ */
+
+.titlebar {
+  background-color: var(--background-primary-alt);
+}
+
+.titlebar-text {
+  color: var(--text-accent);
+}
+
+.status-bar {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-end: 0;
+  display: flex;
+  align-items: center;
+  margin: auto;
+  padding: var(--space-s) 0.375rem 0.375rem var(--space-m);
+  background-color: var(--background-primary-alt);
+  border-color: var(--editor-border-color);
+  border-start-start-radius: var(--radius-m);
+  color: var(--text-faint);
+  opacity: 0.4;
+  transition: opacity 0.5s;
+}
+
+.status-bar:hover {
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+/* FIX: Only set background; preserve Obsidian's severity text colors
+   (info / warning / error were all forced to --text-accent) */
+.notice {
+  background-color: var(--background-primary-alt);
+}
+
+/* ── Navigation ── */
+
+.nav-file-title,
+.nav-folder-title {
+  border: 1px solid transparent;
+}
+
+.nav-folder-collapse-indicator {
+  color: var(--text-accent);
+}
+
+:is(.nav-file, .nav-folder).is-active >
+  :is(.nav-file-title, .nav-folder-title, .nav-folder-collapse-indicator) {
+  color: var(--text-accent);
+}
+
+.nav-file-title.is-active,
+.nav-folder-title.is-active {
+  background: var(--background-secondary);
+  border: 1px solid var(--bg-accent-25);
+  color: var(--text-accent);
+}
+
+body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover {
+  background: var(--background-modifier-border);
+  border: 1px solid var(--interactive-accent-hover);
+  color: var(--text-a-hover);
+}
+
+body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
+  .nav-folder-collapse-indicator {
+  color: var(--text-accent);
+}
+
+.nav-folder.mod-root > :is(.nav-file-title, .nav-folder-title) {
+  color: var(--text-accent);
+}
+
+/* ── Side-dock & Ribbons ── */
+
+:is(
+    .side-dock-ribbon-tab,
+    .side-dock-ribbon-action,
+    .workspace-ribbon-collapse-btn,
+    .workspace-tab-header
+  ) {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 350ms ease-in-out;
+}
+
+:is(
+    .side-dock-ribbon-tab,
+    .side-dock-ribbon-action,
+    .workspace-ribbon-collapse-btn,
+    .workspace-tab-header
+  ):hover {
+  color: var(--text-accent);
+  opacity: 1;
+}
+
+.workspace-ribbon.is-collapsed {
+  background-color: var(--background-primary-alt);
+}
+
+:is(.workspace-ribbon.mod-left, .workspace-ribbon.mod-right).is-collapsed {
+  border-color: var(--editor-border-color);
+}
+
+.is-focused .workspace-tab-header.is-active {
+  opacity: 1;
+}
+
+.is-focused
+  .mod-active
+  .workspace-tab-header.is-active
+  :is(.workspace-tab-header-inner-icon, .workspace-tab-header-inner-title) {
+  background: var(--background-modifier-border);
+  color: var(--text-accent);
+}
+
+.workspace-leaf.mod-active .view-header-title,
+.view-header-icon {
+  color: var(--text-accent);
+}
+
+.pane-list-item:hover .pane-list-item-ending-flair {
+  background-color: var(--background-secondary);
+  color: var(--text-accent);
+}
+
+.checkbox-container.is-enabled {
+  background-color: rgb(var(--interactive-accent-rgb) / 0.7);
+}
+
+.workspace-drop-overlay {
+  background-color: var(--background-primary-alt);
+}
+
+/* ── Formatting markers ── */
+
+/* Theme default: force markers visible in Live Preview.
+   !important required — Obsidian hides them via display:none */
+:is(
+    span.cm-formatting-list,
+    span.cm-formatting-code-block.cm-hmd-codeblock,
+    span.cm-formatting-header
+  ) {
+  display: inline !important;
+}
+
+/* NEW: Style Settings toggle — revert to Obsidian default (hidden) */
+.hide-formatting-markers
+  :is(
+    span.cm-formatting-list,
+    span.cm-formatting-code-block.cm-hmd-codeblock,
+    span.cm-formatting-header
+  ) {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY — Headings
+   ═══════════════════════════════════════════ */
+
+:is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+}
+
+/* ── Shared underline properties (H2–H6) ──
+   DRY: border base shared, only gradient differs per level */
+
+:is(
+    .HyperMD-header-1,
+    .HyperMD-header-2,
+    .HyperMD-header-3,
+    .HyperMD-header-4,
+    .HyperMD-header-5,
+    .HyperMD-header-6
+  ) {
+  padding: 1.25rem;
+  border-block-end: 1px solid;
+  border-image-slice: 1;
+}
+
+.markdown-preview-view :is(h1, h2, h3, h4, h5, h6) {
+  position: relative;
+  margin-block: 2.8rem 1.25rem;
+  padding-block-end: var(--space-m);
+  border-block-end: 1px solid;
+  border-image-slice: 1;
+}
+
+/* ── Per-level underline gradients — Editor ── */
+.HyperMD-header-1 { border-image-source: linear-gradient(to right, var(--text-title-h1), transparent 25%); }
+.HyperMD-header-2 { border-image-source: linear-gradient(to right, var(--text-title-h2), transparent 25%); }
+.HyperMD-header-3 { border-image-source: linear-gradient(to right, var(--text-title-h3), transparent 25%); }
+.HyperMD-header-4 { border-image-source: linear-gradient(to right, var(--text-title-h4), transparent 25%); }
+.HyperMD-header-5 { border-image-source: linear-gradient(to right, var(--text-title-h5), transparent 25%); }
+.HyperMD-header-6 { border-image-source: linear-gradient(to right, var(--text-title-h6), transparent 25%); }
+
+/* ── Per-level underline gradients — Preview ── */
+.markdown-preview-view h1 { border-image-source: linear-gradient(to right, var(--text-title-h1), transparent 35%); }
+.markdown-preview-view h2 { border-image-source: linear-gradient(to right, var(--text-title-h2), transparent 35%); }
+.markdown-preview-view h3 { border-image-source: linear-gradient(to right, var(--text-title-h3), transparent 35%); }
+.markdown-preview-view h4 { border-image-source: linear-gradient(to right, var(--text-title-h4), transparent 35%); }
+.markdown-preview-view h5 { border-image-source: linear-gradient(to right, var(--text-title-h5), transparent 35%); }
+.markdown-preview-view h6 { border-image-source: linear-gradient(to right, var(--text-title-h6), transparent 35%); }
+
+/* ── Shared gradient-text rendering ──
+   DRY: background-clip + text-fill set once;
+   each element below only sets background-image */
+
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6),
+:is(
+    .cm-header-1,
+    .cm-header-2,
+    .cm-header-3,
+    .cm-header-4,
+    .cm-header-5,
+    .cm-header-6
+  ):not(.cm-formatting),
+:is(.cm-strong, strong),
+:is(.cm-em, em),
+:is(.cm-em.cm-strong, em strong, strong em) {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Per-level heading gradients ── */
+
+.markdown-preview-section h1,
+.cm-header-1:not(.cm-formatting) {
+  font-size: var(--h1-size);
+  background-image: var(--h1-gradient);
+}
+
+.markdown-preview-section h2,
+.cm-header-2:not(.cm-formatting) {
+  font-size: var(--h2-size);
+  background-image: var(--h2-gradient);
+}
+
+.markdown-preview-section h3,
+.cm-header-3:not(.cm-formatting) {
+  font-size: var(--h3-size);
+  background-image: var(--h3-gradient);
+}
+
+.markdown-preview-section h4,
+.cm-header-4:not(.cm-formatting) {
+  font-size: var(--h4-size);
+  background-image: var(--h4-gradient);
+}
+
+.markdown-preview-section h5,
+.cm-header-5:not(.cm-formatting) {
+  font-size: var(--h5-size);
+  background-image: var(--h5-gradient);
+}
+
+.markdown-preview-section h6,
+.cm-header-6:not(.cm-formatting) {
+  font-size: var(--h6-size);
+  background-image: var(--h6-gradient);
+}
+
+/* ── Formatting markers (##, ###, etc.) ──
+   Reset gradient, show per-level flat color */
+
+.cm-formatting.cm-formatting-header {
+  background: none;
+  -webkit-text-fill-color: initial;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  opacity: 0.45;
+}
+
+.cm-formatting.cm-header-1 { color: var(--text-title-h1); }
+.cm-formatting.cm-header-2 { color: var(--text-title-h2); }
+.cm-formatting.cm-header-3 { color: var(--text-title-h3); }
+.cm-formatting.cm-header-4 { color: var(--text-title-h4); }
+.cm-formatting.cm-header-5 { color: var(--text-title-h5); }
+.cm-formatting.cm-header-6 { color: var(--text-title-h6); }
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY — Bold · Italic · Bold-Italic
+   Order matters: bold-italic rule last to win
+   ═══════════════════════════════════════════ */
+
+/* background-clip: text already set in shared rule above;
+   only background-image needed per style */
+
+:is(.cm-strong, strong) {
+  background-image: var(--bold-gradient);
+}
+
+:is(.cm-em, em) {
+  background-image: var(--italic-gradient);
+  font-family: 'Fira Code', var(--code-mono-font);
+  font-weight: 500;
+}
+
+:is(.cm-em.cm-strong, em strong, strong em) {
+  background-image: var(--bold-italic-gradient);
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY — Gradient resets
+   Prevent broken text in nested contexts
+   ═══════════════════════════════════════════ */
+
+/* Inside headings → inherit the heading gradient */
+:is(h1, h2, h3, h4, h5, h6) :is(strong, em),
+:is(.cm-strong, .cm-em).cm-header {
+  background: inherit;
+  background-clip: inherit;
+  -webkit-background-clip: inherit;
+  -webkit-text-fill-color: inherit;
+}
+
+/* Inside links → use link color */
+:is(a, .internal-link, .external-link) :is(strong, em),
+:is(.cm-strong, .cm-em):is(.cm-link, .cm-hmd-internal-link) {
+  background: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Inside inline code → use code color */
+code :is(strong, em),
+:is(.cm-strong, .cm-em).cm-inline-code {
+  background: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* ═══════════════════════════════════════════
+   TAGS
+   ═══════════════════════════════════════════ */
+
+a.tag,
+.cm-hashtag {
+  color: var(--text-accent);
+}
+
+/* ═══════════════════════════════════════════
+   LINKS
+   FIX: Redesigned — thin underline at rest,
+   thicker on hover + color shift.
+   Old fill-effect made text unreadable.
+   ═══════════════════════════════════════════ */
+
+.markdown-source-view.mod-cm6 span.cm-formatting-link {
+  color: var(--text-faint);
+  opacity: 0.50; /* FIX: was 0.25 — more visible with brighter --text-faint */
+}
+
+/* Base link style — excludes tag anchors */
+:is(.internal-link, .external-link, a:not(.tag)) {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background-position: 0 100%;
+  background-repeat: no-repeat; /* FIX: was repeat-x — caused tiling artifacts */
+  background-size: 100% 2px; /* FIX: was 5px 5px — too thick, obscured descenders */
+  color: var(--text-link);
+  text-decoration: none;
+  transition: background-size 300ms ease, color 300ms ease;
+}
+
+/* Live Preview — shared underline base (CM6 spans don't match the a/:is() base rule) */
+.markdown-source-view.mod-cm6 span.cm-hmd-internal-link .cm-underline,
+.markdown-source-view.mod-cm6 span.cm-link:not(.cm-formatting-link) .cm-underline {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 2px;
+  text-decoration: none;
+  transition: background-size 300ms ease, color 300ms ease;
+}
+
+/* External link underline (sub-accent) */
+.markdown-source-view.mod-cm6
+  span.cm-link:not(.cm-formatting-link)
+  .cm-underline,
+.external-link {
+  color: var(--text-a);
+  background-image: linear-gradient(
+    to bottom,
+    var(--bg-sub-accent-55),
+    var(--bg-sub-accent-55)
+  );
+}
+
+/* Internal link underline (primary accent) */
+.markdown-source-view.mod-cm6 span.cm-hmd-internal-link .cm-underline,
+.internal-link {
+  color: var(--text-link);
+  background-image: linear-gradient(
+    to bottom,
+    var(--bg-accent-55),
+    var(--bg-accent-55)
+  );
+}
+
+/* Hover — internal: thicker underline + brighter text
+   FIX: No more full background fill → text stays readable */
+:is(
+    .internal-link,
+    .markdown-source-view.mod-cm6 span.cm-hmd-internal-link .cm-underline
+  ):hover {
+  background-size: 100% 4px;
+  color: var(--text-a-hover);
+  -webkit-text-fill-color: var(--text-a-hover);
+}
+
+/* Hover — external: thicker underline + brighter text */
+:is(
+    .external-link,
+    .markdown-source-view.mod-cm6
+      span.cm-link:not(.cm-formatting-link)
+      .cm-underline
+  ):hover {
+  background-size: 100% 4px;
+  color: var(--text-sub-accent);
+  -webkit-text-fill-color: var(--text-sub-accent);
+}
+
+/* Raw URLs in source */
+.cm-url {
+  color: var(--text-faint);
+  font-weight: normal;
+  opacity: 0.55; /* FIX: was 0.4 — too dim with old --text-faint */
+}
+
+.cm-url:hover {
+  color: var(--text-a-hover);
+  opacity: 0.9; /* FIX: was 0.8 */
+}
+
+/* Image formatting token — FIX: scoped to CM6 */
+.markdown-source-view.mod-cm6 .cm-formatting-image {
+  color: var(--text-accent);
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════
+   EDITOR — Task list alignment
+   ═══════════════════════════════════════════ */
+
+.markdown-source-view.mod-cm6 .task-list-label {
+  position: relative;
+  inset-block-start: -2px;
+  padding-block-start: 0;
+}
+
+/* ═══════════════════════════════════════════
+   CHECKBOXES
+   FIX: rem units, removed fragile text-indent,
+   --checked-text-color for visibility
+   ═══════════════════════════════════════════ */
+
+.contains-task-list .task-list-item {
+  position: relative;
+  box-sizing: border-box;
+  padding-inline-start: 1.875rem; /* FIX: was 30px → rem */
+  vertical-align: middle;
+}
+
+.contains-task-list .task-list-item .contains-task-list {
+  padding-inline-start: 0.3125rem; /* FIX: was 5px → rem */
+}
+
+.contains-task-list .task-list-item ul.contains-task-list::before {
+  inset-inline-start: -2.875rem; /* FIX: was -46px → rem */
+  border-width: 2px;
+}
+
+/* FIX: Removed fragile text-indent: -3em.
+   Let padding-inline-start handle offset instead. */
+.markdown-preview-view ul > li.task-list-item {
+  padding-inline-start: 1.875rem;
+}
+
+.contains-task-list .task-list-item input[type='checkbox'] {
+  position: relative;
+  inset-block-start: 0.125rem; /* FIX: was 2px → rem */
+  inset-inline-start: -0.5rem; /* FIX: was -8px → rem */
+  z-index: 10;
+  margin: 0;
+  inline-size: 1.25rem; /* FIX: was 20px → rem */
+  block-size: 1.25rem;
+  opacity: 0;
+}
+
+.markdown-preview-view .list-collapse-indicator {
+  box-sizing: border-box;
+  margin-inline-start: -3rem; /* FIX: was -80px — too aggressive */
+}
+
+/* Custom checkbox visual — unchecked */
+.contains-task-list .task-list-item::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0.125rem;
+  inset-inline-start: -1.5625rem; /* FIX: was -25px → rem */
+  z-index: 1;
+  display: inline-flex;
+  box-sizing: border-box;
+  justify-content: center;
+  inline-size: 1.25rem; /* FIX: was 20px → rem */
+  block-size: 1.25rem;
+  margin-inline-end: 0.9375rem; /* FIX: was 15px → rem */
+  border: 2px solid var(--checkbox-border-color);
+  border-radius: var(--radius-s);
+  transition: all 0.3s;
+}
+
+/* Custom checkbox visual — checked */
+.contains-task-list .is-checked.task-list-item::before {
+  border: 0.625rem solid var(--text-accent); /* FIX: was 10px → rem */
+  animation: bounce 300ms;
+}
+
+.contains-task-list .is-checked.task-list-item::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0.5rem; /* FIX: was 8px → rem */
+  inset-inline-start: -1.3125rem; /* FIX: was -21px → rem */
+  z-index: 5;
+  border-inline-end: 3px solid transparent;
+  border-block-end: 3px solid transparent;
+  transform: rotate(45deg);
+  transform-origin: 0% 100%;
+  animation: checked-box 125ms 250ms forwards;
+}
+
+/* FIX: Uses --checked-text-color (0.7 opacity) instead of
+   --interactive-accent (0.5 opacity → nearly invisible) */
+.markdown-preview-view ul > li.task-list-item.is-checked {
+  color: var(--checked-text-color);
+  text-decoration: line-through;
+}
+
+/* Prevent strike-through from cascading to unchecked children */
+.markdown-preview-view
+  ul
+  > li.task-list-item.is-checked
+  ul
+  > li:not(.is-checked) {
+  color: var(--text-normal);
+  text-decoration: none;
+}
+
+@keyframes checked-box {
+  0% {
+    inline-size: 0;
+    block-size: 0;
+    border-color: var(--checkbox-check-color);
+    transform: translate(0, 0) rotate(45deg);
+  }
+  33% {
+    inline-size: 0.25rem;
+    block-size: 0;
+    border-color: var(--checkbox-check-color);
+    transform: translate(0, 0) rotate(45deg);
+  }
+  100% {
+    inline-size: 0.25rem;
+    block-size: 0.5rem;
+    border-color: var(--checkbox-check-color);
+    transform: translate(0, -0.5rem) rotate(45deg);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    border-width: 2px;
+  }
+  33% {
+    border-width: 0.25rem;
+  }
+  100% {
+    border-width: 0.625rem;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   BLOCKQUOTES
+   FIX: Removed unreliable .cm-quote-N span
+   selectors — CM6 only emits line-level classes.
+   L3 now uses theme-scoped --blockquote-l3-* vars.
+   ═══════════════════════════════════════════ */
+
+/* Reading mode — gradient background */
+.markdown-preview-view blockquote {
+  background: linear-gradient(
+    to right,
+    var(--blockquote-bg-gradient-start),
+    var(--blockquote-bg-gradient-end)
+  );
+  border-inline-start: 3px solid var(--blockquote-border);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  font-style: var(--blockquote-font-style);
+  margin: var(--p-spacing) 0;
+  padding: var(--space-s) var(--space-m);
+}
+
+/* Live Preview — flat color (gradient per-line looks wrong) */
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-quote {
+  background-color: var(--blockquote-bg-gradient-start);
+  border-inline-start: 3px solid var(--blockquote-border);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  font-style: var(--blockquote-font-style);
+  padding: 0.15em var(--space-m);
+  margin: 0;
+}
+
+/* First line of a quote block — extra top spacing */
+.markdown-source-view.mod-cm6
+  .cm-line:not(.HyperMD-quote)
+  + .cm-line.HyperMD-quote,
+.markdown-source-view.mod-cm6
+  .cm-content
+  > .cm-line.HyperMD-quote:first-child {
+  margin-block-start: var(--p-spacing);
+  padding-block-start: var(--space-s);
+}
+
+/* Last line of a quote block — extra bottom spacing */
+.markdown-source-view.mod-cm6
+  .cm-line.HyperMD-quote:not(:has(+ .HyperMD-quote)) {
+  margin-block-end: var(--p-spacing);
+  padding-block-end: var(--space-s);
+}
+
+/* Nested Level 2 — sub-accent */
+.markdown-preview-view blockquote blockquote,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-2 {
+  --blockquote-border: rgb(var(--interactive-sub-accent-rgb) / 0.6);
+  --blockquote-bg-gradient-start: rgb(
+    var(--interactive-sub-accent-rgb) / 0.06
+  );
+  --blockquote-bg-gradient-end: var(--background-primary);
+}
+
+/* Nested Level 3 — FIX: theme-scoped vars (was hardcoded #bb9af7) */
+.markdown-preview-view blockquote blockquote blockquote,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-3 {
+  --blockquote-border: var(--blockquote-l3-border);
+  --blockquote-bg-gradient-start: var(--blockquote-l3-bg);
+  --blockquote-bg-gradient-end: var(--background-primary);
+}
+
+/* Nested Level 4+ — faded primary accent */
+.markdown-preview-view blockquote blockquote blockquote blockquote,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-4 {
+  --blockquote-border: rgb(var(--interactive-accent-rgb) / 0.4);
+  --blockquote-bg-gradient-start: rgb(var(--interactive-accent-rgb) / 0.04);
+  --blockquote-bg-gradient-end: var(--background-primary);
+}
+
+/* Style Settings toggle: transparent blockquote */
+.transparent-blockquote .markdown-preview-view blockquote,
+.transparent-blockquote
+  .markdown-source-view.mod-cm6
+  .cm-line.HyperMD-quote {
+  background: transparent;
+  background-color: transparent;
+}
+
+/* ═══════════════════════════════════════════
+   HORIZONTAL RULES — Decorative
+   ═══════════════════════════════════════════ */
+
+:is(.markdown-source-view, .markdown-preview-view) hr {
+  position: relative;
+  block-size: 2px;
+  border: 0;
+  margin: var(--space-xl) 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--interactive-accent-rgb) / 0.15) 12%,
+    rgb(var(--interactive-accent-rgb) / 0.55) 35%,
+    rgb(var(--interactive-sub-accent-rgb) / 0.55) 65%,
+    rgb(var(--interactive-accent-rgb) / 0.15) 88%,
+    transparent 100%
+  );
+  border-radius: var(--radius-round);
+  box-shadow:
+    0 0 0 1px rgb(var(--interactive-accent-rgb) / 0.05),
+    0 0 18px rgb(var(--interactive-accent-rgb) / 0.18),
+    inset 0 0 0 1px rgb(var(--interactive-accent-rgb) / 0.06);
+  overflow: visible;
+}
+
+/* Hairline above */
+:is(.markdown-source-view, .markdown-preview-view) hr::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: -6px;
+  block-size: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--interactive-accent-rgb) / 0.08) 20%,
+    rgb(var(--interactive-accent-rgb) / 0.22) 50%,
+    rgb(var(--interactive-accent-rgb) / 0.08) 80%,
+    transparent 100%
+  );
+  border-radius: var(--radius-round);
+}
+
+/* Center ornament — FIX: font-family fallback for ✦ glyph */
+:is(.markdown-source-view, .markdown-preview-view) hr::after {
+  content: '✦';
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -60%);
+  padding: 0 0.35rem;
+  color: var(--text-accent);
+  font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols 2',
+    'Symbola', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--background-primary);
+  border-radius: var(--radius-round);
+  box-shadow:
+    0 0 0 6px var(--background-primary),
+    0 0 10px rgb(var(--interactive-accent-rgb) / 0.35),
+    0 0 18px rgb(var(--interactive-sub-accent-rgb) / 0.25);
+}
+
+/* ═══════════════════════════════════════════
+   HIGHLIGHTING
+   ═══════════════════════════════════════════ */
+
+/* !important required: overrides bold/italic gradient on highlighted text */
+:is(
+    .markdown-source-view.mod-cm6 span.cm-formatting-highlight,
+    .markdown-source-view.mod-cm6 span.cm-highlight
+  ) {
+  background-color: var(--text-highlight-bg) !important;
+  background-image: none !important;
+  color: var(--text-normal);
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: var(--text-normal);
+}
+
+/* ═══════════════════════════════════════════
+   INLINE CODE
+   ═══════════════════════════════════════════ */
+
+.markdown-source-view.mod-cm6 span.cm-inline-code {
+  color: rgb(var(--interactive-accent-rgb) / 0.9);
+}
+
+.markdown-source-view.mod-cm6 span.cm-inline-code.cm-formatting-code {
+  display: inline-flex;
+  min-inline-size: 0.55rem;
+}
+
+:is(
+    .markdown-source-view.mod-cm6
+      span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code):not(
+        .obsidian-search-match-highlight
+      ),
+    .markdown-preview-view code
+  ) {
+  padding: 0 5px;
+  background-color: rgb(
+    var(--interactive-accent-rgb) / 0.10
+  ); /* FIX: was 0.05 — too subtle */
+  border-radius: var(--radius-s);
+  color: rgb(var(--interactive-accent-rgb) / 0.9);
+  overflow-wrap: break-word; /* FIX: removed deprecated word-wrap duplicate */
+}
+
+/* ═══════════════════════════════════════════
+   CODE BLOCKS
+   ═══════════════════════════════════════════ */
+
+/* Language badge — source view */
+.markdown-source-view.mod-cm6 span.code-block-flair:not(:empty) {
+  margin-block-start: 0.3rem;
+  margin-inline-end: 0.3rem;
+  padding: 0.1em 0.8em;
+  background: var(--code-background);
+  border-radius: var(--radius-m);
+  color: var(--text-accent);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Code block text */
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock {
+  color: var(--text-sub-accent);
+}
+
+/* Code block background — unified via --code-background */
+.markdown-source-view.mod-cm6 div.HyperMD-codeblock-bg {
+  background-color: var(--code-background);
+}
+
+.markdown-source-view.mod-cm6 div.HyperMD-codeblock-begin-bg {
+  border: none;
+  border-start-start-radius: 0.3em;
+  border-start-end-radius: 0.3em;
+}
+
+.markdown-source-view.mod-cm6 div.HyperMD-codeblock-begin-bg::before {
+  content: '';
+  position: absolute;
+  inset-block-start: -5%;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 60%;
+  margin-block-start: 1.5em;
+  background-color: var(--code-background);
+  border-start-start-radius: 0.3em;
+  border-start-end-radius: 0.3em;
+}
+
+.markdown-source-view.mod-cm6 div.HyperMD-codeblock-end-bg {
+  border: none;
+  border-end-start-radius: 0.3em;
+  border-end-end-radius: 0.3em;
+}
+
+/* Reading mode code blocks */
+:is(:not(pre) > code[class*='language-'], pre[class*='language-']) {
+  background-color: var(--code-background);
+}
+
+pre {
+  position: relative;
+}
+
+/* Language badge — reading mode
+   FIX: content: none prevents empty pill on unlisted languages */
+pre[class*='language-']::before {
+  content: none; /* FIX: was '' — rendered empty badge */
+  position: absolute;
+  inset-block-start: 0.3rem;
+  inset-inline-end: 0.3rem;
+  z-index: 10;
+  padding: 0.1em 0.8em;
+  background: var(--code-background);
+  border-radius: var(--radius-m);
+  color: var(--text-accent);
+  font-family: var(--default-font);
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Per-language labels — setting content activates the badge */
+pre.language-javascript::before,
+pre.language-js::before {
+  content: 'JavaScript';
+}
+pre.language-typescript::before,
+pre.language-ts::before {
+  content: 'TypeScript';
+}
+pre.language-html::before {
+  content: 'HTML';
+}
+pre.language-css::before {
+  content: 'CSS';
+}
+pre.language-ejs::before {
+  content: 'EJS';
+}
+pre.language-vue::before {
+  content: 'Vue';
+}
+pre.language-react::before,
+pre.language-jsx::before,
+pre.language-tsx::before {
+  content: 'React';
+}
+pre.language-shell::before,
+pre.language-bash::before,
+pre.language-sh::before {
+  content: 'Shell';
+}
+pre.language-powershell::before {
+  content: 'PowerShell';
+}
+pre.language-json::before {
+  content: 'JSON';
+}
+pre.language-python::before,
+pre.language-py::before {
+  content: 'Python';
+}
+pre.language-rust::before,
+pre.language-rs::before {
+  content: 'Rust';
+}
+pre.language-go::before {
+  content: 'Go';
+}
+pre.language-java::before {
+  content: 'Java';
+}
+pre.language-cpp::before {
+  content: 'C++';
+}
+pre.language-c::before {
+  content: 'C';
+}
+pre.language-sql::before {
+  content: 'SQL';
+}
+pre.language-yaml::before,
+pre.language-yml::before {
+  content: 'YAML';
+}
+pre.language-markdown::before,
+pre.language-md::before {
+  content: 'Markdown';
+}
+pre.language-ruby::before,
+pre.language-rb::before {
+  content: 'Ruby';
+}
+pre.language-php::before {
+  content: 'PHP';
+}
+pre.language-swift::before {
+  content: 'Swift';
+}
+pre.language-kotlin::before,
+pre.language-kt::before {
+  content: 'Kotlin';
+}
+pre.language-csharp::before,
+pre.language-cs::before {
+  content: 'C#';
+}
+pre.language-lua::before {
+  content: 'Lua';
+}
+
+/* ═══════════════════════════════════════════
+   FRONT MATTER
+   ═══════════════════════════════════════════ */
+
+.markdown-source-view.mod-cm6 :is(span.cm-def, span.cm-atom) {
+  color: var(--text-faint);
+}
+
+.markdown-source-view.mod-cm6 span.cm-meta {
+  color: var(--text-accent);
+}
+
+/* ═══════════════════════════════════════════
+   IMAGES
+   ═══════════════════════════════════════════ */
+
+.markdown-preview-view img {
+  border-radius: var(--radius-m);
+}
+
+/* ═══════════════════════════════════════════
+   TABLES — NEW
+   ═══════════════════════════════════════════ */
+
+:is(.markdown-preview-view, .markdown-source-view) table {
+  border-collapse: collapse;
+  inline-size: 100%;
+  margin: var(--space-m) 0;
+}
+
+:is(.markdown-preview-view, .markdown-source-view) :is(th, td) {
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid var(--table-border-color);
+  text-align: start;
+}
+
+:is(.markdown-preview-view, .markdown-source-view) th {
+  background-color: rgb(var(--interactive-accent-rgb) / 0.06);
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+/* Alternating row stripe */
+:is(.markdown-preview-view, .markdown-source-view) tr:nth-child(even) {
+  background-color: rgb(var(--interactive-accent-rgb) / 0.02);
+}
+
+:is(.markdown-preview-view, .markdown-source-view) tr:hover {
+  background-color: rgb(var(--interactive-accent-rgb) / 0.04);
+}
+
+/* ═══════════════════════════════════════════
+   CALLOUTS — NEW
+   Complements blockquote styling without
+   overriding Obsidian's built-in icon / color
+   ═══════════════════════════════════════════ */
+
+.callout {
+  border-inline-start: 3px solid var(--callout-color, var(--blockquote-border));
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  background: linear-gradient(
+    to right,
+    rgb(var(--callout-color-rgb, var(--interactive-accent-rgb)) / 0.08),
+    var(--background-primary)
+  );
+  margin: var(--p-spacing) 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.callout-title {
+  padding: var(--space-s) var(--space-m);
+  font-weight: 600;
+}
+
+.callout-content {
+  padding: 0 var(--space-m) var(--space-s);
+}
+
+/* ═══════════════════════════════════════════
+   SYNTAX HIGHLIGHTING — CodeMirror (CM6)
+   FIX: .cm-meta was set to --background-primary
+   (invisible on matching background). Now --sh-meta.
+   ═══════════════════════════════════════════ */
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-comment {
+  color: var(--sh-comment);
+}
+
+.markdown-source-view.mod-cm6
+  pre.HyperMD-codeblock
+  :is(span.cm-string, span.cm-string-2) {
+  color: var(--sh-string);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-number {
+  color: var(--sh-number);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-variable {
+  color: var(--sh-variable);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-variable-2 {
+  color: var(--text-normal);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-def {
+  color: var(--sh-variable);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-operator {
+  color: var(--sh-keyword);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-keyword {
+  color: var(--sh-keyword);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-atom {
+  color: var(--sh-number);
+}
+
+/* FIX: was --background-primary → invisible text */
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-meta {
+  color: var(--sh-meta);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-tag {
+  color: var(--sh-tag);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-attribute {
+  color: var(--sh-variable);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-qualifier {
+  color: var(--sh-variable);
+}
+
+.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-property {
+  color: var(--sh-property);
+}
+
+.markdown-source-view.mod-cm6
+  pre.HyperMD-codeblock
+  :is(span.cm-variable-3, span.cm-type) {
+  color: var(--sh-type);
+}
+
+/* ═══════════════════════════════════════════
+   SYNTAX HIGHLIGHTING — Prism.js Tokens
+   ═══════════════════════════════════════════ */
+
+:is(code[class*='language-'], pre[class*='language-']) {
+  font-family: var(--code-mono-font);
+  line-height: 1.5;
+  text-align: start;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 4;
+  hyphens: none;
+  color: var(--text-normal);
+  text-shadow: none;
+}
+
+:is(pre[class*='language-'], code[class*='language-'])::selection,
+:is(pre[class*='language-'], code[class*='language-']) ::selection {
+  background-color: var(--sh-selection);
+  text-shadow: none;
+}
+
+:not(pre) > code[class*='language-'] {
+  padding: 4px 7px;
+  border-radius: var(--radius-s);
+  white-space: normal;
+}
+
+pre::-webkit-scrollbar {
+  inline-size: 14px;
+}
+
+/* Token colors — single rule each, theme-aware via variables */
+.token.comment,
+.token.prolog {
+  color: var(--sh-comment);
+}
+.token.tag {
+  color: var(--sh-tag);
+}
+.token.entity,
+.token.url {
+  color: var(--sh-property);
+}
+.token.atrule,
+.token.selector,
+.token.function,
+.token.regex,
+.token.variable {
+  color: var(--sh-variable);
+}
+.token.string,
+.token.char {
+  color: var(--sh-string);
+}
+.token.property,
+.token.class-name,
+.token.boolean,
+.token.constant,
+.token.symbol {
+  color: var(--sh-type);
+}
+.token.keyword,
+.token.builtin {
+  color: var(--sh-keyword);
+}
+.token.important {
+  color: var(--sh-keyword);
+  font-weight: bold;
+}
+.token.number {
+  color: var(--sh-number);
+}
+.token.operator {
+  color: var(--sh-operator);
+}
+.token.punctuation {
+  color: var(--text-normal);
+}
+.token.attr-value {
+  color: var(--sh-attr-value);
+}
+.token.deleted,
+.token.namespace {
+  color: var(--sh-deleted);
+}
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+
+/* FIX: Removed catch-all `.token { color: ... }` —
+   set every unrecognized token to keyword color,
+   conflicted with explicit .token.punctuation above */
+
+/* ── Language-specific overrides ── */
+
+:is(.language-cpp, .language-c) .token.string {
+  color: var(--sh-operator);
+}
+
+.language-css .token.selector {
+  color: var(--sh-variable);
+}
+.language-css .token.property {
+  color: var(--sh-type);
+}
+
+.language-java .token.class-name {
+  color: var(--sh-operator);
+}
+
+.language-markup .token.attr-value {
+  color: var(--sh-property);
+}
+.language-markup .token.tag {
+  color: var(--sh-variable);
+}
+
+.language-objectivec .token.property {
+  color: var(--sh-property);
+}
+.language-objectivec .token.string {
+  color: var(--sh-variable);
+}
+
+.language-php .token.boolean {
+  color: var(--sh-operator);
+}
+.language-php .token.function {
+  color: var(--sh-keyword);
+}
+.language-php .token.keyword {
+  color: var(--sh-property);
+}
+
+.language-ruby .token.symbol {
+  color: var(--sh-operator);
+}
+.language-ruby .token.class-name {
+  color: var(--sh-comment);
+}
+
+/* ── Line numbers ── */
+
+pre.line-numbers {
+  position: relative;
+  padding-inline-start: 3.8em;
+  counter-reset: linenumber;
+}
+
+pre.line-numbers > code {
+  position: relative;
+  white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: -3.8em;
+  inline-size: 3em;
+  font-size: 100%;
+  letter-spacing: -1px;
+  border-inline-end: 1px solid var(--text-faint);
+  pointer-events: none;
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+  pointer-events: none;
+}
+
+.line-numbers-rows > span::before {
+  content: counter(linenumber);
+  display: block;
+  padding-inline-end: 0.8em;
+  color: var(--text-faint);
+  text-align: end;
+}
+
+/* ═══════════════════════════════════════════
+   UTILITY CLASSES
+   ═══════════════════════════════════════════ */
+
+.limit-300 {
+  block-size: 300px;
+}
+.limit-400 {
+  block-size: 400px;
+}
+.limit-500 {
+  block-size: 500px;
+}
+.limit-600 {
+  block-size: 600px;
+}
+.limit-700 {
+  block-size: 700px;
+}
+.limit-800 {
+  block-size: 800px;
+}
+
+/* ═══════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════ */
+
+@media print {
+  :root {
+    --background-primary: #ffffff;
+    --text-normal: #000000;
+  }
+
+  /* Remove gradient text — doesn't print reliably */
+  :is(h1, h2, h3, h4, h5, h6),
+  :is(strong, em, strong em, em strong) {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    background-clip: border-box;
+    -webkit-background-clip: border-box;
+    color: #000000;
+  }
+
+  /* Remove decorative HR elements */
+  hr::before,
+  hr::after {
+    display: none;
+  }
+
+  hr {
+    background: #000000;
+    box-shadow: none;
+  }
+
+  /* Hide chrome */
+  .status-bar,
+  .workspace-ribbon,
+  .side-dock-ribbon,
+  .titlebar {
+    display: none;
+  }
+
+  :is(code[class*='language-'], pre[class*='language-']) {
+    text-shadow: none;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ACCESSIBILITY — Reduced Motion
+   ═══════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
