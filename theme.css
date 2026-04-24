@@ -696,6 +696,52 @@ code :is(strong, em),
 }
 
 /* ═══════════════════════════════════════════
+   MATH / LATEX
+   ═══════════════════════════════════════════ */
+
+/* Reset gradient text properties inherited from parent headers/bold/italic */
+:is(h1, h2, h3, h4, h5, h6, strong, em, del) .mjx-container,
+:is(.cm-header, .cm-strong, .cm-em, .cm-strikethrough) .mjx-container,
+.cm-math {
+  -webkit-text-fill-color: currentColor !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+  background-image: none !important;
+}
+
+/* Reading Mode: Ensure math inherits proper accent color when inside heading */
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) .mjx-container {
+  color: var(--heading-color);
+}
+
+/* Math blocks — add subtle block styling to match theme */
+.math-block {
+  background-color: var(--background-secondary-alt);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  padding: var(--space-m);
+  margin-block: var(--space-m);
+}
+
+/* Strikethrough fix: MathJax SVGs/CommonHTML often ignore text-decoration: line-through.
+   Add a manual strike line that matches surrounding text color. */
+:is(del, .cm-strikethrough) .mjx-container {
+  position: relative;
+}
+
+:is(del, .cm-strikethrough) .mjx-container::after {
+  content: "";
+  position: absolute;
+  inset-inline: -2px;
+  inset-block-start: 50%;
+  block-size: 1.5px;
+  background-color: currentColor;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════════
    TAGS
    ═══════════════════════════════════════════ */
 
