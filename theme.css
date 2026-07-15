@@ -79,7 +79,7 @@ settings:
   --interactive-before: #5e6565;
 
   /* ── Borders ── */
-  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.05);
+  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.15);
   --table-border-color: rgb(var(--interactive-accent-rgb) / 0.15);
   --editor-border-color: #101014;
 
@@ -109,13 +109,13 @@ settings:
 
   /* ── Syntax — Dracula-inspired ── */
   --sh-selection: #5a5f80;
-  --sh-comment: rgb(98 114 164);
+  --sh-comment: #6272a4;
   --sh-string: #e6db74;
-  --sh-number: rgb(189 147 249);
-  --sh-variable: rgb(80 250 123);
-  --sh-operator: rgb(139 233 253);
-  --sh-keyword: rgb(255 121 198);
-  --sh-tag: rgb(255 121 198);
+  --sh-number: #bd93f9;
+  --sh-variable: #50fa7b;
+  --sh-operator: #8be9fd;
+  --sh-keyword: #ff79c6;
+  --sh-tag: #ff79c6;
   --sh-property: #66d9ef;
   --sh-type: #ffb86c;
   --sh-attr-value: #7ec699;
@@ -168,7 +168,7 @@ settings:
   --interactive-before: #b8b0a4;
 
   /* ── Borders ── */
-  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.08);
+  --background-modifier-border: rgb(var(--interactive-accent-rgb) / 0.15);
   --table-border-color: rgb(var(--interactive-accent-rgb) / 0.15);
   --editor-border-color: #d5cdc1;
 
@@ -217,24 +217,14 @@ settings:
    ═══════════════════════════════════════════ */
 
 :root {
-  /* Fonts */
-  --default-font: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
-  --code-mono-font: 'OperatorMonoSSmLig-Book', ui-monospace, SFMono-Regular,
-    Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
   /* Radii */
   --radius-s: 4px;
   --radius-m: 8px;
-  --radius-l: 12px;
-  --radius-xl: 16px;
   --radius-round: 999px;
 
   /* Spacing */
-  --space-xs: 0.25rem;
   --space-s: 0.5rem;
   --space-m: 1rem;
-  --space-l: 1.5rem;
   --space-xl: 2rem;
 
   /* Heading sizes */
@@ -251,8 +241,8 @@ settings:
    ═══════════════════════════════════════════ */
 
 body {
-  --font-text: var(--default-font);
-  --font-monospace: var(--code-mono-font);
+  --font-text-theme: 'Rubik', sans-serif;
+  --font-monospace-theme: 'Fira Code', ui-monospace, monospace;
   --blockquote-font-style: normal;
 
   --bg-sub-accent-55: rgb(var(--interactive-sub-accent-rgb) / 0.55);
@@ -261,10 +251,6 @@ body {
   --bg-accent-25: rgb(var(--interactive-accent-rgb) / 0.25);
   --code-background: var(--background-secondary);
   --checkbox-border-color: var(--interactive-before);
-
-  /* Obsidian picks these up for Settings → Appearance */
-  --font-family-editor: var(--default-font);
-  --font-family-preview: var(--default-font);
 }
 
 /* Style Settings toggle */
@@ -283,15 +269,20 @@ body {
   -webkit-text-fill-color: var(--text-normal);
 }
 
-/* Rules for both views */
-.markdown-source-view,
-.markdown-preview-view {
-  font-family: var(--default-font);
+/* Gradient text selection rescue */
+:is(h1, h2, h3, h4, h5, h6, strong, em, .cm-header-1, .cm-header-2, .cm-header-3, .cm-header-4, .cm-header-5, .cm-header-6, .cm-strong, .cm-em)::selection,
+:is(h1, h2, h3, h4, h5, h6, strong, em, .cm-header-1, .cm-header-2, .cm-header-3, .cm-header-4, .cm-header-5, .cm-header-6, .cm-strong, .cm-em) ::selection {
+  -webkit-text-fill-color: var(--text-normal) !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
 }
+
+
 
 /* Scrollbar — WebKit */
 ::-webkit-scrollbar {
   inline-size: 0.6rem;
+  block-size: 0.6rem;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -304,14 +295,8 @@ body {
   background: var(--background-secondary);
 }
 
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--background-modifier-border) var(--background-secondary);
-}
-
 /* Unresolved links */
-.markdown-preview-view .internal-link.is-unresolved {
+:is(.markdown-preview-view, .markdown-rendered) .internal-link.is-unresolved {
   opacity: 0.7;
 }
 
@@ -401,7 +386,7 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
   ) {
   cursor: pointer;
   opacity: 0.5;
-  transition: all 350ms ease-in-out;
+  transition: opacity 350ms ease-in-out, color 350ms ease-in-out;
 }
 
 :is(
@@ -449,7 +434,7 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
 }
 
 .workspace-drop-overlay {
-  background-color: var(--background-primary-alt);
+  background-color: rgb(var(--interactive-accent-rgb) / 0.1);
 }
 
 /* ── Formatting markers ── */
@@ -492,12 +477,13 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
     .HyperMD-header-5,
     .HyperMD-header-6
   ) {
-  padding: 1.25rem;
+  padding-block: 1.25rem 0.75rem;
+  padding-inline: 0;
   border-block-end: 1px solid;
   border-image-slice: 1;
 }
 
-.markdown-preview-view :is(h1, h2, h3, h4, h5, h6) {
+:is(.markdown-preview-view, .markdown-rendered) :is(h1, h2, h3, h4, h5, h6) {
   position: relative;
   margin-block: 2.8rem 1.25rem;
   padding-block-end: var(--space-m);
@@ -514,12 +500,12 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
 .HyperMD-header-6 { border-image-source: linear-gradient(to right, var(--text-title-h6), transparent 25%); }
 
 /* ── Per-level underline gradients — Preview ── */
-.markdown-preview-view h1 { border-image-source: linear-gradient(to right, var(--text-title-h1), transparent 35%); }
-.markdown-preview-view h2 { border-image-source: linear-gradient(to right, var(--text-title-h2), transparent 35%); }
-.markdown-preview-view h3 { border-image-source: linear-gradient(to right, var(--text-title-h3), transparent 35%); }
-.markdown-preview-view h4 { border-image-source: linear-gradient(to right, var(--text-title-h4), transparent 35%); }
-.markdown-preview-view h5 { border-image-source: linear-gradient(to right, var(--text-title-h5), transparent 35%); }
-.markdown-preview-view h6 { border-image-source: linear-gradient(to right, var(--text-title-h6), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h1 { border-image-source: linear-gradient(to right, var(--text-title-h1), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h2 { border-image-source: linear-gradient(to right, var(--text-title-h2), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h3 { border-image-source: linear-gradient(to right, var(--text-title-h3), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h4 { border-image-source: linear-gradient(to right, var(--text-title-h4), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h5 { border-image-source: linear-gradient(to right, var(--text-title-h5), transparent 35%); }
+:is(.markdown-preview-view, .markdown-rendered) h6 { border-image-source: linear-gradient(to right, var(--text-title-h6), transparent 35%); }
 
 /* ── Shared gradient-text rendering ── */
 
@@ -616,8 +602,6 @@ body:not(.is-grabbing) :is(.nav-file-title, .nav-folder-title):hover
 
 :is(.cm-em, em) {
   background-image: var(--italic-gradient);
-  font-family: 'Fira Code', var(--code-mono-font);
-  font-weight: 500;
 }
 
 :is(.cm-em.cm-strong, em strong, strong em) {
@@ -686,8 +670,8 @@ code :is(strong, em),
    ═══════════════════════════════════════════ */
 
 /* Reset gradient text properties inherited from parent headers/bold/italic */
-:is(h1, h2, h3, h4, h5, h6, strong, em, del) .mjx-container,
-:is(.cm-header, .cm-strong, .cm-em, .cm-strikethrough) .mjx-container,
+:is(h1, h2, h3, h4, h5, h6, strong, em, del) mjx-container,
+:is(.cm-header, .cm-strong, .cm-em, .cm-strikethrough) mjx-container,
 .cm-math {
   -webkit-text-fill-color: currentColor !important;
   background-clip: border-box !important;
@@ -696,7 +680,7 @@ code :is(strong, em),
 }
 
 /* Reading Mode: Ensure math inherits proper accent color when inside heading */
-.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) .mjx-container {
+.markdown-preview-section :is(h1, h2, h3, h4, h5, h6) mjx-container {
   color: var(--heading-color);
 }
 
@@ -711,11 +695,11 @@ code :is(strong, em),
 
 /* Strikethrough fix: MathJax SVGs/CommonHTML often ignore text-decoration: line-through.
    Add a manual strike line that matches surrounding text color. */
-:is(del, .cm-strikethrough) .mjx-container {
+:is(del, .cm-strikethrough) mjx-container {
   position: relative;
 }
 
-:is(del, .cm-strikethrough) .mjx-container::after {
+:is(del, .cm-strikethrough) mjx-container::after {
   content: "";
   position: absolute;
   inset-inline: -2px;
@@ -736,7 +720,7 @@ a.tag,
   color: var(--text-accent);
 }
 
-/* Base link style — excludes tag anchors */
+/* Link formatting markers (brackets/parentheses) */
 
 .markdown-source-view.mod-cm6 span.cm-formatting-link {
   color: var(--text-faint);
@@ -858,119 +842,71 @@ a.tag,
   padding-inline-start: 0.3125rem;
 }
 
-.contains-task-list .task-list-item ul.contains-task-list::before {
-  inset-inline-start: -2.875rem;
-  border-width: 2px;
-}
-
-.markdown-preview-view ul > li.task-list-item {
+:is(.markdown-preview-view, .markdown-rendered) ul > li.task-list-item {
   padding-inline-start: 1.875rem;
 }
 
-.contains-task-list .task-list-item input[type='checkbox'] {
-  position: relative;
-  inset-block-start: 0.125rem;
-  inset-inline-start: -0.5rem;
-  z-index: 10;
-  margin: 0;
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-  opacity: 0;
-}
-
-.markdown-preview-view .list-collapse-indicator {
+:is(.markdown-preview-view, .markdown-rendered) .list-collapse-indicator {
   box-sizing: border-box;
   margin-inline-start: -3rem;
 }
 
-/* Custom checkbox visual — unchecked */
-.contains-task-list .task-list-item::before {
-  content: '';
+/* Custom checkbox styling for both Reading Mode and Live Preview */
+input.task-list-item-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
   position: absolute;
   inset-block-start: 0.125rem;
   inset-inline-start: -1.5625rem;
-  z-index: 1;
-  display: inline-flex;
-  box-sizing: border-box;
-  justify-content: center;
+  z-index: 10;
+  margin: 0;
   inline-size: 1.25rem;
   block-size: 1.25rem;
-  margin-inline-end: 0.9375rem;
   border: 2px solid var(--checkbox-border-color);
   border-radius: var(--radius-s);
+  background-color: transparent;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
-.contains-task-list .task-list-item:focus-within::before {
+input.task-list-item-checkbox:focus-visible {
   outline: 2px solid var(--text-accent);
   outline-offset: 2px;
 }
 
-/* Custom checkbox visual — checked */
-.contains-task-list .is-checked.task-list-item::before {
-  border: 0.625rem solid var(--text-accent);
+input.task-list-item-checkbox:checked {
+  background-color: var(--text-accent);
+  border-color: var(--text-accent);
   animation: bounce 300ms;
 }
 
-.contains-task-list .is-checked.task-list-item::after {
+input.task-list-item-checkbox:checked::after {
   content: '';
   position: absolute;
-  inset-block-start: 0.5rem;
-  inset-inline-start: -1.3125rem;
-  z-index: 5;
-  border-inline-end: 3px solid transparent;
-  border-block-end: 3px solid transparent;
+  inset-block-start: 0.15rem;
+  inset-inline-start: 0.35rem;
+  inline-size: 0.35rem;
+  block-size: 0.6rem;
+  border-inline-end: 2px solid var(--checkbox-check-color);
+  border-block-end: 2px solid var(--checkbox-check-color);
   transform: rotate(45deg);
-  transform-origin: 0% 100%;
-  animation: checked-box 125ms 250ms forwards;
 }
 
-.markdown-preview-view ul > li.task-list-item.is-checked {
+:is(.markdown-preview-view, .markdown-rendered) li.task-list-item.is-checked {
   color: var(--checked-text-color);
+}
+
+:is(.markdown-preview-view, .markdown-rendered) li.task-list-item.is-checked:not(:has(> ul)) {
   text-decoration: line-through;
 }
 
-/* Prevent strike-through from cascading to unchecked children */
-.markdown-preview-view
-  ul
-  > li.task-list-item.is-checked
-  ul
-  > li:not(.is-checked) {
+:is(.markdown-preview-view, .markdown-rendered) li.task-list-item.is-checked ul li:not(.is-checked) {
   color: var(--text-normal);
-  text-decoration: none;
-}
-
-@keyframes checked-box {
-  0% {
-    inline-size: 0;
-    block-size: 0;
-    border-color: var(--checkbox-check-color);
-    transform: translate(0, 0) rotate(45deg);
-  }
-  33% {
-    inline-size: 0.25rem;
-    block-size: 0;
-    border-color: var(--checkbox-check-color);
-    transform: translate(0, 0) rotate(45deg);
-  }
-  100% {
-    inline-size: 0.25rem;
-    block-size: 0.5rem;
-    border-color: var(--checkbox-check-color);
-    transform: translate(0, -0.5rem) rotate(45deg);
-  }
 }
 
 @keyframes bounce {
-  0% {
-    border-width: 2px;
-  }
-  33% {
-    border-width: 0.25rem;
-  }
-  100% {
-    border-width: 0.625rem;
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.9); }
 }
 
 /* ═══════════════════════════════════════════
@@ -978,7 +914,7 @@ a.tag,
    ═══════════════════════════════════════════ */
 
 /* Reading mode — gradient background */
-.markdown-preview-view blockquote {
+:is(.markdown-preview-view, .markdown-rendered) blockquote {
   background: linear-gradient(
     to right,
     var(--blockquote-bg-gradient-start),
@@ -1020,7 +956,7 @@ a.tag,
 }
 
 /* Nested Level 2 — sub-accent */
-.markdown-preview-view blockquote blockquote,
+:is(.markdown-preview-view, .markdown-rendered) blockquote blockquote,
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-2 {
   --blockquote-border: rgb(var(--interactive-sub-accent-rgb) / 0.6);
   --blockquote-bg-gradient-start: rgb(
@@ -1030,7 +966,7 @@ a.tag,
 }
 
 /* Nested Level 3 */
-.markdown-preview-view blockquote blockquote blockquote,
+:is(.markdown-preview-view, .markdown-rendered) blockquote blockquote blockquote,
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-3 {
   --blockquote-border: var(--blockquote-l3-border);
   --blockquote-bg-gradient-start: var(--blockquote-l3-bg);
@@ -1038,7 +974,7 @@ a.tag,
 }
 
 /* Nested Level 4+ — faded primary accent */
-.markdown-preview-view blockquote blockquote blockquote blockquote,
+:is(.markdown-preview-view, .markdown-rendered) blockquote blockquote blockquote blockquote,
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-quote-4 {
   --blockquote-border: rgb(var(--interactive-accent-rgb) / 0.4);
   --blockquote-bg-gradient-start: rgb(var(--interactive-accent-rgb) / 0.04);
@@ -1046,7 +982,7 @@ a.tag,
 }
 
 /* Style Settings toggle: transparent blockquote */
-.transparent-blockquote .markdown-preview-view blockquote,
+.transparent-blockquote :is(.markdown-preview-view, .markdown-rendered) blockquote,
 .transparent-blockquote
   .markdown-source-view.mod-cm6
   .cm-line.HyperMD-quote {
@@ -1058,7 +994,7 @@ a.tag,
    HORIZONTAL RULES — Decorative
    ═══════════════════════════════════════════ */
 
-:is(.markdown-source-view, .markdown-preview-view) hr {
+:is(.markdown-source-view, .markdown-preview-view, .markdown-rendered) hr {
   position: relative;
   block-size: 2px;
   border: 0;
@@ -1081,7 +1017,7 @@ a.tag,
 }
 
 /* Hairline above */
-:is(.markdown-source-view, .markdown-preview-view) hr::before {
+:is(.markdown-source-view, .markdown-preview-view, .markdown-rendered) hr::before {
   content: '';
   position: absolute;
   inset-inline: 0;
@@ -1099,13 +1035,14 @@ a.tag,
 }
 
 /* Center ornament */
-:is(.markdown-source-view, .markdown-preview-view) hr::after {
+:is(.markdown-source-view, .markdown-preview-view, .markdown-rendered) hr::after {
   content: '✦';
   position: absolute;
   inset-block-start: 50%;
   inset-inline-start: 50%;
   transform: translate(-50%, -60%);
   padding: 0 0.35rem;
+  background: var(--background-primary);
   color: var(--text-accent);
   font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols 2', 'Symbola', sans-serif;
   font-size: 0.9rem;
@@ -1174,7 +1111,7 @@ a.tag,
       span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code):not(
         .obsidian-search-match-highlight
       ),
-    .markdown-preview-view code
+    :is(.markdown-preview-view, .markdown-rendered) code
   ) {
   padding: 0 5px;
   background-color: rgb(
@@ -1203,38 +1140,17 @@ a.tag,
 }
 
 /* Code block text */
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock {
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock {
+  background-color: var(--code-background);
   color: var(--text-sub-accent);
 }
 
-/* Code block background — unified via --code-background */
-.markdown-source-view.mod-cm6 div.HyperMD-codeblock-bg {
-  background-color: var(--code-background);
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin {
+  border-radius: 0.3em 0.3em 0 0;
 }
 
-.markdown-source-view.mod-cm6 div.HyperMD-codeblock-begin-bg {
-  border: none;
-  border-start-start-radius: 0.3em;
-  border-start-end-radius: 0.3em;
-}
-
-.markdown-source-view.mod-cm6 div.HyperMD-codeblock-begin-bg::before {
-  content: '';
-  position: absolute;
-  inset-block-start: -5%;
-  inset-inline-start: 0;
-  inline-size: 100%;
-  block-size: 60%;
-  margin-block-start: 1.5em;
-  background-color: var(--code-background);
-  border-start-start-radius: 0.3em;
-  border-start-end-radius: 0.3em;
-}
-
-.markdown-source-view.mod-cm6 div.HyperMD-codeblock-end-bg {
-  border: none;
-  border-end-start-radius: 0.3em;
-  border-end-end-radius: 0.3em;
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-end {
+  border-radius: 0 0 0.3em 0.3em;
 }
 
 /* Reading mode code blocks */
@@ -1251,13 +1167,13 @@ pre[class*='language-']::before {
   content: none;
   position: absolute;
   inset-block-start: 0.3rem;
-  inset-inline-end: 0.3rem;
+  inset-inline-end: 3rem;
   z-index: 10;
   padding: 0.1em 0.8em;
   background: var(--code-background);
   border-radius: var(--radius-m);
   color: var(--text-accent);
-  font-family: var(--default-font);
+  font-family: var(--font-text);
   font-size: 0.6rem;
   font-style: normal;
   font-weight: 700;
@@ -1358,11 +1274,11 @@ pre.language-lua::before {
    FRONT MATTER
    ═══════════════════════════════════════════ */
 
-.markdown-source-view.mod-cm6 :is(span.cm-def, span.cm-atom) {
+.markdown-source-view.mod-cm6 :is(span.cm-hmd-frontmatter.cm-def, span.cm-hmd-frontmatter.cm-atom) {
   color: var(--text-faint);
 }
 
-.markdown-source-view.mod-cm6 span.cm-meta {
+.markdown-source-view.mod-cm6 span.cm-hmd-frontmatter.cm-meta {
   color: var(--text-accent);
 }
 
@@ -1370,7 +1286,7 @@ pre.language-lua::before {
    IMAGES
    ═══════════════════════════════════════════ */
 
-.markdown-preview-view img {
+:is(.markdown-preview-view, .markdown-rendered) img {
   border-radius: var(--radius-m);
 }
 
@@ -1378,30 +1294,30 @@ pre.language-lua::before {
    TABLES
    ═══════════════════════════════════════════ */
 
-:is(.markdown-preview-view, .markdown-source-view) table {
+:is(.markdown-preview-view, .markdown-rendered, .markdown-source-view) table {
   border-collapse: collapse;
   inline-size: 100%;
   margin: var(--space-m) 0;
 }
 
-:is(.markdown-preview-view, .markdown-source-view) :is(th, td) {
+:is(.markdown-preview-view, .markdown-rendered, .markdown-source-view) :is(th, td) {
   padding: var(--space-s) var(--space-m);
   border: 1px solid var(--table-border-color);
   text-align: start;
 }
 
-:is(.markdown-preview-view, .markdown-source-view) th {
+:is(.markdown-preview-view, .markdown-rendered, .markdown-source-view) th {
   background-color: rgb(var(--interactive-accent-rgb) / 0.06);
   color: var(--text-accent);
   font-weight: 600;
 }
 
 /* Alternating row stripe */
-:is(.markdown-preview-view, .markdown-source-view) tr:nth-child(even) {
+:is(.markdown-preview-view, .markdown-rendered, .markdown-source-view) tr:nth-child(even) {
   background-color: rgb(var(--interactive-accent-rgb) / 0.02);
 }
 
-:is(.markdown-preview-view, .markdown-source-view) tr:hover {
+:is(.markdown-preview-view, .markdown-rendered, .markdown-source-view) tr:hover {
   background-color: rgb(var(--interactive-accent-rgb) / 0.04);
 }
 
@@ -1410,11 +1326,11 @@ pre.language-lua::before {
    ═══════════════════════════════════════════ */
 
 .callout {
-  border-inline-start: 3px solid var(--callout-color, var(--blockquote-border));
+  border-inline-start: 3px solid rgb(var(--callout-color));
   border-radius: 0 var(--radius-s) var(--radius-s) 0;
   background: linear-gradient(
     to right,
-    rgb(var(--callout-color-rgb, var(--interactive-accent-rgb)) / 0.08),
+    rgba(var(--callout-color), 0.08),
     var(--background-primary)
   );
   margin: var(--p-spacing, 1rem) 0;
@@ -1435,66 +1351,66 @@ pre.language-lua::before {
    SYNTAX HIGHLIGHTING — CodeMirror (CM6)
    ═══════════════════════════════════════════ */
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-comment {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-comment {
   color: var(--sh-comment);
 }
 
 .markdown-source-view.mod-cm6
-  pre.HyperMD-codeblock
+  .HyperMD-codeblock
   :is(span.cm-string, span.cm-string-2) {
   color: var(--sh-string);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-number {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-number {
   color: var(--sh-number);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-variable {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-variable {
   color: var(--sh-variable);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-variable-2 {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-variable-2 {
   color: var(--text-normal);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-def {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-def {
   color: var(--sh-variable);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-operator {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-operator {
+  color: var(--sh-operator);
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-keyword {
   color: var(--sh-keyword);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-keyword {
-  color: var(--sh-keyword);
-}
-
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-atom {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-atom {
   color: var(--sh-number);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-meta {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-meta {
   color: var(--sh-meta);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-tag {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-tag {
   color: var(--sh-tag);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-attribute {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-attribute {
   color: var(--sh-variable);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-qualifier {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-qualifier {
   color: var(--sh-variable);
 }
 
-.markdown-source-view.mod-cm6 pre.HyperMD-codeblock span.cm-property {
+.markdown-source-view.mod-cm6 .HyperMD-codeblock span.cm-property {
   color: var(--sh-property);
 }
 
 .markdown-source-view.mod-cm6
-  pre.HyperMD-codeblock
+  .HyperMD-codeblock
   :is(span.cm-variable-3, span.cm-type) {
   color: var(--sh-type);
 }
@@ -1504,7 +1420,7 @@ pre.language-lua::before {
    ═══════════════════════════════════════════ */
 
 :is(code[class*='language-'], pre[class*='language-']) {
-  font-family: var(--code-mono-font);
+  font-family: var(--font-monospace);
   line-height: 1.5;
   text-align: start;
   white-space: pre;
@@ -1641,67 +1557,13 @@ pre::-webkit-scrollbar {
   color: var(--sh-comment);
 }
 
-/* ── Line numbers ── */
 
-pre.line-numbers {
-  position: relative;
-  padding-inline-start: 3.8em;
-  counter-reset: linenumber;
-}
-
-pre.line-numbers > code {
-  position: relative;
-  white-space: inherit;
-}
-
-.line-numbers .line-numbers-rows {
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline-start: -3.8em;
-  inline-size: 3em;
-  font-size: 100%;
-  letter-spacing: -1px;
-  border-inline-end: 1px solid var(--text-faint);
-  pointer-events: none;
-  user-select: none;
-}
-
-.line-numbers-rows > span {
-  display: block;
-  counter-increment: linenumber;
-  pointer-events: none;
-}
-
-.line-numbers-rows > span::before {
-  content: counter(linenumber);
-  display: block;
-  padding-inline-end: 0.8em;
-  color: var(--text-faint);
-  text-align: end;
-}
 
 /* ═══════════════════════════════════════════
    UTILITY CLASSES
    ═══════════════════════════════════════════ */
 
-.limit-300 {
-  block-size: 300px;
-}
-.limit-400 {
-  block-size: 400px;
-}
-.limit-500 {
-  block-size: 500px;
-}
-.limit-600 {
-  block-size: 600px;
-}
-.limit-700 {
-  block-size: 700px;
-}
-.limit-800 {
-  block-size: 800px;
-}
+
 
 /* ═══════════════════════════════════════════
    PRINT STYLES
@@ -1744,6 +1606,15 @@ pre.line-numbers > code {
 
   :is(code[class*='language-'], pre[class*='language-']) {
     text-shadow: none;
+  }
+
+  /* Reset link underlines/colors in print */
+  a,
+  .internal-link,
+  .external-link {
+    background-image: none !important;
+    color: #000000 !important;
+    text-decoration: underline !important;
   }
 }
 
