@@ -106,6 +106,7 @@ settings:
   /* ── Checkbox ── */
   --checkbox-check-color: #212121;
   --checked-text-color: rgb(var(--interactive-accent-rgb) / 0.7);
+  --checkbox-marker-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23212121' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8l3 3 5-6'/%3E%3C/svg%3E");
 
   /* ── Syntax — Dracula-inspired ── */
   --sh-selection: #5a5f80;
@@ -195,6 +196,7 @@ settings:
   /* ── Checkbox ── */
   --checkbox-check-color: #ffffff;
   --checked-text-color: rgb(var(--interactive-accent-rgb) / 0.7);
+  --checkbox-marker-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8l3 3 5-6'/%3E%3C/svg%3E");
 
   /* ── Syntax — warm & readable ── */
   --sh-selection: #d0c8ba;
@@ -881,19 +883,11 @@ input.task-list-item-checkbox:focus-visible {
 input.task-list-item-checkbox:checked {
   background-color: var(--text-accent);
   border-color: var(--text-accent);
+  background-image: var(--checkbox-marker-svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 0.85rem 0.85rem;
   animation: bounce 300ms;
-}
-
-input.task-list-item-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  inset-block-start: 0.15rem;
-  inset-inline-start: 0.35rem;
-  inline-size: 0.35rem;
-  block-size: 0.6rem;
-  border-inline-end: 2px solid var(--checkbox-check-color);
-  border-block-end: 2px solid var(--checkbox-check-color);
-  transform: rotate(45deg);
 }
 
 :is(.markdown-preview-view, .markdown-rendered) li.task-list-item.is-checked {
