@@ -855,11 +855,6 @@ a.tag,
 input.task-list-item-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  position: absolute;
-  inset-block-start: 0.125rem;
-  inset-inline-start: -1.5625rem;
-  z-index: 10;
-  margin: 0;
   inline-size: 1.25rem;
   block-size: 1.25rem;
   border: 2px solid var(--checkbox-border-color);
@@ -867,6 +862,15 @@ input.task-list-item-checkbox {
   background-color: transparent;
   transition: all 0.3s;
   cursor: pointer;
+  vertical-align: middle;
+}
+
+:is(.markdown-preview-view, .markdown-rendered) .task-list-item-checkbox {
+  position: absolute;
+  inset-block-start: 0.125rem;
+  inset-inline-start: -1.5625rem;
+  z-index: 10;
+  margin: 0;
 }
 
 input.task-list-item-checkbox:focus-visible {
