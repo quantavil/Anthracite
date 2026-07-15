@@ -12,17 +12,17 @@ A dark, elegant Obsidian theme with gradient accents and refined typography.
 
 ## Installation
 
-### From Obsidian Community Themes
-1. Open Settings > Appearance
-2. Click "Manage" next to Themes
-3. Search for "Anthracite"
-4. Click "Install and use"
+### Via BRAT (Recommended for Beta updates)
+1. Install and enable the **BRAT** plugin from Obsidian's Community Plugins.
+2. Go to `Settings` > `BRAT` > scroll down to the **Themes** section.
+3. Click **Add Beta Theme** and enter: `quantavil/Anthracite`.
+4. Once downloaded, go to `Settings` > `Appearance` and select **Anthracite** from the theme list.
 
 ### Manual Installation
-1. Download `theme.css` and `manifest.json`
-2. Create a folder named `Anthracite` in your vault's `.obsidian/themes/` directory
-3. Move both files into the folder
-4. Open Settings > Appearance and select "Anthracite" from the Theme dropdown
+1. Download `theme.css` and `manifest.json`.
+2. Create a folder named `Anthracite` in your vault's `.obsidian/themes/` directory.
+3. Move both files into the folder.
+4. Open `Settings` > `Appearance` and select **Anthracite** from the Theme dropdown.
 
 ## Customization
 
@@ -32,22 +32,14 @@ The theme uses CSS custom properties for easy customization. Key variables are d
 ```css
 --text-accent: #0fb6d6;      /* Primary accent color (cyan) */
 --text-sub-accent: #f4569d;  /* Secondary accent color (pink) */
---interactive-accent-rgb: 14 210 247;  /* RGB values for transparency */
-```
-
-### Typography
-```css
---default-font: 'Rubik', sans-serif;
---code-mono-font: 'OperatorMonoSSmLig-Book', monospace;
---default-font-size: 18px;
+--interactive-accent: #0fb6d6;  /* Primary interactive accent */
 ```
 
 ### Border Radius
 ```css
---radius-s: 4px;
---radius-m: 8px;
---radius-l: 12px;
---radius-xl: 16px;
+--radius-s: 4px;             /* Small corner radius */
+--radius-m: 8px;             /* Medium corner radius */
+--radius-round: 999px;       /* Circular elements */
 ```
 
 ## Screenshots
@@ -61,6 +53,12 @@ This theme was developed with inspiration from:
 - **[Museifu Basic](https://github.com/museifu/obsidian-museifu)** - For custom backgrounds and Kanban styling
 
 ## Changelog
+
+### v1.0.4
+- Fixed checkbox alignment and text overlap in Live Preview (Editor).
+- Replaced custom CSS checkmark with a clean, vector-sharp SVG checkmark.
+- Cleaned up unused design tokens, line-number structures, and height limit classes.
+- Resolved CM6 syntax highlighting operator color mappings and callouts RGB formatting.
 
 ### v1.0.2
 - Initial release
